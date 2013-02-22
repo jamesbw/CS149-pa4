@@ -5,6 +5,8 @@
 #include <omp.h>
 
 #define PI	3.14159265
+#define CACHE_LINE_SIZE 64
+#define FLOATS_PER_CACHE_LINE 16
 
 void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y)
 {
@@ -131,7 +133,7 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
   // float *fft_real = new float[size_x];
   // float *fft_imag = new float[size_x];
 
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static, 16)
   for(unsigned int y = 0; y < size_y; y++)
   {
     // Allocate some space for temporary values
@@ -187,7 +189,7 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
   // float *fft_real = new float[size_x];
   // float *fft_imag = new float[size_x];
 
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static, 16)
   for(unsigned int y = 0; y < size_y; y++)
   {
     // Create some space for storing temporary values
