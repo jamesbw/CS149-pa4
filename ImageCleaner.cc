@@ -259,8 +259,8 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 	 !(x >= eight7X && y >= eight7Y))
       {
 	// Zero out these values
-	real_image[y*size_x + x] = 0;
-	imag_image[y*size_x + x] = 0;
+	real_image[x*size_x + y] = 0;
+	imag_image[x*size_x + y] = 0;
       }
     }
   }
