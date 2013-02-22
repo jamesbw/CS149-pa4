@@ -249,7 +249,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eightY = size_y/8;
   int eight7Y = size_y - eightY;
 
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
     if (x < eightX || x >= eight7X)
