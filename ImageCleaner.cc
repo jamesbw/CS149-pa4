@@ -66,13 +66,21 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y)
 // This is the same as the thing above, except it has a scaling factor added to it
 void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
 {
-  // Create some space for storing temporary values
-  float *realOutBuffer = new float[size_x];
-  float *imagOutBuffer = new float[size_x];
-  float *fft_real = new float[size_y];
-  float *fft_imag = new float[size_y];
+  // // Create some space for storing temporary values
+  // float *realOutBuffer = new float[size_x];
+  // float *imagOutBuffer = new float[size_x];
+  // float *fft_real = new float[size_y];
+  // float *fft_imag = new float[size_y];
+
+  #pragma omp parallel for
   for(unsigned int x = 0; x < size_x; x++)
   {
+    // Create some space for storing temporary values
+    float *realOutBuffer = new float[size_x];
+    float *imagOutBuffer = new float[size_x];
+    float *fft_real = new float[size_y];
+    float *fft_imag = new float[size_y];
+
     for(unsigned int y = 0; y < size_y; y++)
     {
       for(unsigned int n = 0; n < size_y; n++)
@@ -102,23 +110,36 @@ void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
       real_image[x*size_x + y] = realOutBuffer[y];
       imag_image[x*size_x + y] = imagOutBuffer[y];
     }
+    // Reclaim some memory
+    delete [] realOutBuffer;
+    delete [] imagOutBuffer;
+    delete [] fft_real;
+    delete [] fft_imag;
   }
-  // Reclaim some memory
-  delete [] realOutBuffer;
-  delete [] imagOutBuffer;
-  delete [] fft_real;
-  delete [] fft_imag;
+  // // Reclaim some memory
+  // delete [] realOutBuffer;
+  // delete [] imagOutBuffer;
+  // delete [] fft_real;
+  // delete [] fft_imag;
 }
 
 void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
 {
-  // Allocate some space for temporary values
-  float *realOutBuffer = new float[size_y];
-  float *imagOutBuffer = new float[size_y];
-  float *fft_real = new float[size_x];
-  float *fft_imag = new float[size_x];
+  // // Allocate some space for temporary values
+  // float *realOutBuffer = new float[size_y];
+  // float *imagOutBuffer = new float[size_y];
+  // float *fft_real = new float[size_x];
+  // float *fft_imag = new float[size_x];
+
+  #pragma omp parallel for
   for(unsigned int y = 0; y < size_y; y++)
   {
+    // Allocate some space for temporary values
+    float *realOutBuffer = new float[size_y];
+    float *imagOutBuffer = new float[size_y];
+    float *fft_real = new float[size_x];
+    float *fft_imag = new float[size_x];
+
     for(unsigned int x = 0; x < size_x; x++)
     {
       // Compute the frequencies for this index
@@ -144,24 +165,37 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
       real_image[x*size_x + y] = realOutBuffer[x];
       imag_image[x*size_x + y] = imagOutBuffer[x];
     }
+    // Reclaim some memory
+    delete [] realOutBuffer;
+    delete [] imagOutBuffer;
+    delete [] fft_real;
+    delete [] fft_imag;
   }
-  // Reclaim some memory
-  delete [] realOutBuffer;
-  delete [] imagOutBuffer;
-  delete [] fft_real;
-  delete [] fft_imag;
+  // // Reclaim some memory
+  // delete [] realOutBuffer;
+  // delete [] imagOutBuffer;
+  // delete [] fft_real;
+  // delete [] fft_imag;
 }
 
 // This is the same as the thing about it, but it includes a scaling factor
 void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
 {
-  // Create some space for storing temporary values
-  float *realOutBuffer = new float[size_y];
-  float *imagOutBuffer = new float[size_y];
-  float *fft_real = new float[size_x];
-  float *fft_imag = new float[size_x];
+  // // Create some space for storing temporary values
+  // float *realOutBuffer = new float[size_y];
+  // float *imagOutBuffer = new float[size_y];
+  // float *fft_real = new float[size_x];
+  // float *fft_imag = new float[size_x];
+
+  #pragma omp parallel for
   for(unsigned int y = 0; y < size_y; y++)
   {
+    // Create some space for storing temporary values
+    float *realOutBuffer = new float[size_y];
+    float *imagOutBuffer = new float[size_y];
+    float *fft_real = new float[size_x];
+    float *fft_imag = new float[size_x];
+
     for(unsigned int x = 0; x < size_x; x++)
     {
       // Compute the frequencies for this index
@@ -192,12 +226,17 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
       real_image[x*size_x + y] = realOutBuffer[x];
       imag_image[x*size_x + y] = imagOutBuffer[x];
     }
+    // Reclaim some memory
+    delete [] realOutBuffer;
+    delete [] imagOutBuffer;
+    delete [] fft_real;
+    delete [] fft_imag;
   }
-  // Reclaim some memory
-  delete [] realOutBuffer;
-  delete [] imagOutBuffer;
-  delete [] fft_real;
-  delete [] fft_imag;
+  // // Reclaim some memory
+  // delete [] realOutBuffer;
+  // delete [] imagOutBuffer;
+  // delete [] fft_real;
+  // delete [] fft_imag;
 }
 
 void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
@@ -206,6 +245,8 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eight7X = size_x - eightX;
   int eightY = size_y/8;
   int eight7Y = size_y - eightY;
+
+  #pragma omp parallel for
   for(unsigned int x = 0; x < size_x; x++)
   {
     for(unsigned int y = 0; y < size_y; y++)
