@@ -2,20 +2,29 @@
 #include <math.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <omp.h>
 
 #define PI	3.14159265
 
 void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y)
 {
   // Create some space for storing temporary values
-  float *realOutBuffer = new float[size_x];
-  float *imagOutBuffer = new float[size_x];
-  // Local values
-  float *fft_real = new float[size_y];
-  float *fft_imag = new float[size_y];
+  // float *realOutBuffer = new float[size_x];
+  // float *imagOutBuffer = new float[size_x];
+  // // Local values
+  // float *fft_real = new float[size_y];
+  // float *fft_imag = new float[size_y];
 
+#pragma omp parallel for default(none) private(x,y,n,term, fft_real, fft_imag, realOutBuffer, imagOutBuffer) shared(size_x, size_y)
   for(unsigned int x = 0; x < size_x; x++)
   {
+    // Create some space for storing temporary values
+    float *realOutBuffer = new float[size_x];
+    float *imagOutBuffer = new float[size_x];
+    // Local values
+    float *fft_real = new float[size_y];
+    float *fft_imag = new float[size_y];
+
     for(unsigned int y = 0; y < size_y; y++)
     {
       // Compute the frequencies for this index
@@ -41,12 +50,17 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y)
       real_image[x*size_x + y] = realOutBuffer[y];
       imag_image[x*size_x + y] = imagOutBuffer[y];
     }
+    // Reclaim some memory
+    delete [] realOutBuffer;
+    delete [] imagOutBuffer;
+    delete [] fft_real;
+    delete [] fft_imag;
   }
-  // Reclaim some memory
-  delete [] realOutBuffer;
-  delete [] imagOutBuffer;
-  delete [] fft_real;
-  delete [] fft_imag;
+  // // Reclaim some memory
+  // delete [] realOutBuffer;
+  // delete [] imagOutBuffer;
+  // delete [] fft_real;
+  // delete [] fft_imag;
 }
 
 // This is the same as the thing above, except it has a scaling factor added to it
