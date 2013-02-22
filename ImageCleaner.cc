@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <omp.h>
-#include <cstring.h>
+#include <string.h>
 
 #define PI	3.14159265
 #define CACHE_LINE_SIZE 64
