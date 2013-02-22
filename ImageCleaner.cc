@@ -15,7 +15,7 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y)
   // float *fft_real = new float[size_y];
   // float *fft_imag = new float[size_y];
 
-#pragma omp parallel for private(x,y,n,term, fft_real, fft_imag, realOutBuffer, imagOutBuffer) shared(size_x, size_y, real_image, imag_image)
+#pragma omp parallel for
   for(unsigned int x = 0; x < size_x; x++)
   {
     // Create some space for storing temporary values
