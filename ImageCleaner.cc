@@ -254,10 +254,10 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   {
     if (x < eightX || x >= eight7X)
     {
-      memset(real_image[x*size_x + eightY], 0, eight7Y - eightY);
+      memset(real_image + x*size_x + eightY, 0, eight7Y - eightY);
     }
     else
-      memset(real_image[x*size_x], 0, size_y);
+      memset(real_image + x*size_x, 0, size_y);
   }
  //    for(unsigned int y = 0; y < size_y; y++)
  //    {
