@@ -146,6 +146,15 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
     // Allocate some space for temporary values
     float *realOutBuffer = new float[size_y];
     float *imagOutBuffer = new float[size_y];
+
+    float *realInBuffer = new float[size_y];
+    float *imagInBuffer = new float[size_y];
+    for(unsigned int x = 0; x < size_x; x++)
+    {
+      realInBuffer[x] = real_image[x*size_x + y];
+      imagInBuffer[x] = imag_image[x*size_x + y];
+    }
+
     // float *fft_real = new float[size_x];
     // float *fft_imag = new float[size_x];
 
@@ -166,8 +175,11 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
       {
         int termIndex = (n * x) % size_x;
         // printf("real term: %f , computed: %f, imag: %f , %f\n", termsXreal[termIndex], fft_real[n], termsXimag[termIndex], fft_imag[n]);
-        realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
-        imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
+        // realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
+        // imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
+
+        realOutBuffer[x] += (realInBuffer[n] * termsXreal[termIndex]) - (imagInBuffer[n] * termsXimag[termIndex]);
+        imagOutBuffer[x] += (imagInBuffer[n] * termsXreal[termIndex]) + (realInBuffer[n] * termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
       	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
@@ -181,6 +193,10 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
+
+    delete [] realInBuffer;
+    delete [] imagInBuffer;
+
     // delete [] fft_real;
     // delete [] fft_imag;
   }
@@ -226,11 +242,11 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
       for(unsigned int n = 0; n < size_x; n++)
       {
         int termIndex = ( n * x) % size_x;
-        // realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * -termsXimag[termIndex]);
-        // imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * -termsXimag[termIndex]);
+        realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * -termsXimag[termIndex]);
+        imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * -termsXimag[termIndex]);
 
-        realOutBuffer[x] += (real_image[y*size_x + n] * termsXreal[termIndex]) - (imag_image[y*size_x + n] * -termsXimag[termIndex]);
-        imagOutBuffer[x] += (imag_image[y*size_x + n] * termsXreal[termIndex]) + (real_image[y*size_x + n] * -termsXimag[termIndex]);
+        // realOutBuffer[x] += (real_image[y*size_x + n] * termsXreal[termIndex]) - (imag_image[y*size_x + n] * -termsXimag[termIndex]);
+        // imagOutBuffer[x] += (imag_image[y*size_x + n] * termsXreal[termIndex]) + (real_image[y*size_x + n] * -termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
       	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
@@ -242,11 +258,11 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
     // Write the buffer back to were the original values were
     for(unsigned int x = 0; x < size_x; x++)
     {
-      // real_image[x*size_x + y] = realOutBuffer[x];
-      // imag_image[x*size_x + y] = imagOutBuffer[x];
+      real_image[x*size_x + y] = realOutBuffer[x];
+      imag_image[x*size_x + y] = imagOutBuffer[x];
 
-      real_image[y*size_x + x] = realOutBuffer[x];
-      imag_image[y*size_x + x] = imagOutBuffer[x];
+      // real_image[y*size_x + x] = realOutBuffer[x];
+      // imag_image[y*size_x + x] = imagOutBuffer[x];
     }
     // Reclaim some memory
     delete [] realOutBuffer;
