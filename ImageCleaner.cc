@@ -420,7 +420,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   //   imag_image[n] = 0;
   // }
 
-  cpu_filter(real_image, imag_image, size_x, size_y);
+  // cpu_filter(real_image, imag_image, size_x, size_y);
 
 
 
