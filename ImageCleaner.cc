@@ -364,7 +364,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
 
   // Perform an inverse fft with respect to the y direction
-  // cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -379,7 +379,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform an inverse fft with respect to the x direction
-  // cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -419,6 +419,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   //   real_image[n] = 0;
   //   imag_image[n] = 0;
   // }
+
+  cpu_filter(real_image, imag_image, size_x, size_y);
 
 
 
