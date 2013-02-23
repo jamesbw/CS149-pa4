@@ -165,8 +165,8 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
       for(unsigned int n = 0; n < size_x; n++)
       {
         int termIndex = (n * x) % size_x;
-        realOutBuffer[y] += (real_image[n*size_x + y] * termsYreal[termIndex]) - (imag_image[n*size_x + y] * termsYimag[termIndex]);
-        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsYreal[termIndex]) + (real_image[n*size_x + y] * termsYimag[termIndex]);
+        realOutBuffer[y] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
+        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
       	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
@@ -225,8 +225,8 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
       for(unsigned int n = 0; n < size_x; n++)
       {
         int termIndex = (n * x) % size_x;
-        realOutBuffer[y] += (real_image[n*size_x + y] * termsYreal[termIndex]) - (imag_image[n*size_x + y] * termsYimag[termIndex]);
-        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsYreal[termIndex]) + (real_image[n*size_x + y] * termsYimag[termIndex]);
+        realOutBuffer[y] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
+        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
       	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
