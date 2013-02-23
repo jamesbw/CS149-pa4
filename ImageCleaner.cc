@@ -70,7 +70,7 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, floa
 }
 
 // This is the same as the thing above, except it has a scaling factor added to it
-void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
+void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y, float *termsYreal, float *termsYimag)
 {
   // // Create some space for storing temporary values
   // float *realOutBuffer = new float[size_x];
@@ -84,26 +84,29 @@ void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
     // Create some space for storing temporary values
     float *realOutBuffer = new float[size_x];
     float *imagOutBuffer = new float[size_x];
-    float *fft_real = new float[size_y];
-    float *fft_imag = new float[size_y];
+    // float *fft_real = new float[size_y];
+    // float *fft_imag = new float[size_y];
 
     for(unsigned int y = 0; y < size_y; y++)
     {
-      for(unsigned int n = 0; n < size_y; n++)
-      {
-        // Compute the frequencies for this index
-	float term = 2 * PI * y * n / size_y;
-	fft_real[n] = cos(term);
-	fft_imag[n] = sin(term);
-      }
+ //      for(unsigned int n = 0; n < size_y; n++)
+ //      {
+ //        // Compute the frequencies for this index
+	// float term = 2 * PI * y * n / size_y;
+	// fft_real[n] = cos(term);
+	// fft_imag[n] = sin(term);
+ //      }
 
       // Compute the value for this index
       realOutBuffer[y] = 0.0f;
       imagOutBuffer[y] = 0.0f;
       for(unsigned int n = 0; n < size_y; n++)
       {
-	realOutBuffer[y] += (real_image[x*size_x + n] * fft_real[n]) - (imag_image[x*size_x + n] * fft_imag[n]);
-	imagOutBuffer[y] += (imag_image[x*size_x + n] * fft_real[n]) + (real_image[x*size_x + n] * fft_imag[n]);
+        int termIndex = (n * y) % size_y;
+        realOutBuffer[y] += (real_image[x*size_x + n] * termsYreal[termIndex]) - (imag_image[x*size_x + n] * termsYimag[termIndex]);
+        imagOutBuffer[y] += (imag_image[x*size_x + n] * termsYreal[termIndex]) + (real_image[x*size_x + n] * termsYimag[termIndex]);
+      	// realOutBuffer[y] += (real_image[x*size_x + n] * fft_real[n]) - (imag_image[x*size_x + n] * fft_imag[n]);
+      	// imagOutBuffer[y] += (imag_image[x*size_x + n] * fft_real[n]) + (real_image[x*size_x + n] * fft_imag[n]);
       }
 
       // Incoporate the scaling factor here
@@ -119,8 +122,8 @@ void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    delete [] fft_real;
-    delete [] fft_imag;
+    // delete [] fft_real;
+    // delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
@@ -129,7 +132,7 @@ void cpu_ifftx(float *real_image, float *imag_image, int size_x, int size_y)
   // delete [] fft_imag;
 }
 
-void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
+void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, float *termsXreal, float *termsXimag)
 {
   // // Allocate some space for temporary values
   // float *realOutBuffer = new float[size_y];
@@ -143,26 +146,29 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
     // Allocate some space for temporary values
     float *realOutBuffer = new float[size_y];
     float *imagOutBuffer = new float[size_y];
-    float *fft_real = new float[size_x];
-    float *fft_imag = new float[size_x];
+    // float *fft_real = new float[size_x];
+    // float *fft_imag = new float[size_x];
 
     for(unsigned int x = 0; x < size_x; x++)
     {
       // Compute the frequencies for this index
-      for(unsigned int n = 0; n < size_y; n++)
-      {
-	float term = -2 * PI * x * n / size_x;
-	fft_real[n] = cos(term);
-	fft_imag[n] = sin(term);
-      }
+ //      for(unsigned int n = 0; n < size_y; n++)
+ //      {
+	// float term = -2 * PI * x * n / size_x;
+	// fft_real[n] = cos(term);
+	// fft_imag[n] = sin(term);
+ //      }
 
       // Compute the value for this index
       realOutBuffer[x] = 0.0f;
       imagOutBuffer[x] = 0.0f;
       for(unsigned int n = 0; n < size_x; n++)
       {
-	realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
-	imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
+        int termIndex = (n * x) % size_x;
+        realOutBuffer[y] += (real_image[n*size_x + y] * termsYreal[termIndex]) - (imag_image[n*size_x + y] * termsYimag[termIndex]);
+        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsYreal[termIndex]) + (real_image[n*size_x + y] * termsYimag[termIndex]);
+      	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
+      	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
     }
     // Write the buffer back to were the original values were
@@ -174,8 +180,8 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    delete [] fft_real;
-    delete [] fft_imag;
+    // delete [] fft_real;
+    // delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
@@ -185,7 +191,7 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y)
 }
 
 // This is the same as the thing about it, but it includes a scaling factor
-void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
+void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, float *termsXreal, float *termsXimag)
 {
   // // Create some space for storing temporary values
   // float *realOutBuffer = new float[size_y];
@@ -199,27 +205,30 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
     // Create some space for storing temporary values
     float *realOutBuffer = new float[size_y];
     float *imagOutBuffer = new float[size_y];
-    float *fft_real = new float[size_x];
-    float *fft_imag = new float[size_x];
+    // float *fft_real = new float[size_x];
+    // float *fft_imag = new float[size_x];
 
     for(unsigned int x = 0; x < size_x; x++)
     {
       // Compute the frequencies for this index
-      for(unsigned int n = 0; n < size_y; n++)
-      {
-	// Note that the negative sign goes away for the term
-	float term = 2 * PI * x * n / size_x;
-	fft_real[n] = cos(term);
-	fft_imag[n] = sin(term);
-      }
+ //      for(unsigned int n = 0; n < size_y; n++)
+ //      {
+	// // Note that the negative sign goes away for the term
+	// float term = 2 * PI * x * n / size_x;
+	// fft_real[n] = cos(term);
+	// fft_imag[n] = sin(term);
+ //      }
 
       // Compute the value for this index
       realOutBuffer[x] = 0.0f;
       imagOutBuffer[x] = 0.0f;
       for(unsigned int n = 0; n < size_x; n++)
       {
-	realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
-	imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
+        int termIndex = (n * x) % size_x;
+        realOutBuffer[y] += (real_image[n*size_x + y] * termsYreal[termIndex]) - (imag_image[n*size_x + y] * termsYimag[termIndex]);
+        imagOutBuffer[y] += (imag_image[n*size_x + y] * termsYreal[termIndex]) + (real_image[n*size_x + y] * termsYimag[termIndex]);
+      	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
+      	// imagOutBuffer[x] += (imag_image[n*size_x + y] * fft_real[n]) + (real_image[n*size_x + y] * fft_imag[n]);
       }
 
       // Incorporate the scaling factor here
@@ -235,8 +244,8 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y)
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    delete [] fft_real;
-    delete [] fft_imag;
+    // delete [] fft_real;
+    // delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
@@ -323,7 +332,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform fft with respect to the y direction
-  cpu_ffty(real_image, imag_image, size_x, size_y);
+  cpu_ffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -351,7 +360,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform an inverse fft with respect to the x direction
-  cpu_ifftx(real_image, imag_image, size_x, size_y);
+  cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -364,7 +373,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
 
   // Perform an inverse fft with respect to the y direction
-  cpu_iffty(real_image, imag_image, size_x, size_y);
+  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
