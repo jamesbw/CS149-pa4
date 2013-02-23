@@ -394,5 +394,17 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // Print some output
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel Execution Time: %f ms\n\n", execution);
+
+
+  for(unsigned int x = 0; x < size_x/2; x++)
+  {
+    for(unsigned int y = 0; y < size_y/3; y++)
+    {
+      real_image[x*size_y + y] = cos(term);
+      imag_image[x*size_y + y] = sin(term);
+    }
+  }
+
+
   return execution;
 }
