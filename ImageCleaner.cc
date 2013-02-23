@@ -224,7 +224,7 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
       imagOutBuffer[x] = 0.0f;
       for(unsigned int n = 0; n < size_x; n++)
       {
-        // int termIndex = (n * x) % size_x;
+        int termIndex = (n * x) % size_x;
         realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
         imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
