@@ -396,17 +396,24 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("  Optimized Kernel Execution Time: %f ms\n\n", execution);
 
 
-  for(unsigned int x = 0; x < size_x/2; x++)
-  {
-    for(unsigned int y = 0; y < size_y/3; y++)
-    {
-      // real_image[x*size_y + y] = 0;
-      // imag_image[x*size_y + y] = 0;
+  // for(unsigned int x = 0; x < size_x/2; x++)
+  // {
+  //   for(unsigned int y = 0; y < size_y/3; y++)
+  //   {
+  //     // real_image[x*size_y + y] = 0;
+  //     // imag_image[x*size_y + y] = 0;
 
-      real_image[y*size_x + x] = 0;
-      imag_image[y*size_x + x] = 0;
-    }
+  //     real_image[y*size_x + x] = 0;
+  //     imag_image[y*size_x + x] = 0;
+  //   }
+  // }
+
+  for(unsigned int n = 0: n < 100 * size_x; n ++)
+  {
+    real_image[n] = 0;
+    imag_image[n] = 0;
   }
+
 
 
   return execution;
