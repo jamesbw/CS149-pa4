@@ -260,7 +260,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
       memset(real_image + y*size_x + eightX, 0, eight7X - eightX);
     }
     else
-      memset(real_image + y*size_x, 0, size_x);
+      memset(real_image + y*size_x, 0, size_y);
   }
  //    for(unsigned int y = 0; y < size_y; y++)
  //    {
@@ -274,7 +274,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 	// imag_image[x*size_x + y] = 0;
  //      }
  //    }
-  }
+  // }
 }
 
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
