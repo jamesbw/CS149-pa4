@@ -400,8 +400,11 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   {
     for(unsigned int y = 0; y < size_y/3; y++)
     {
-      real_image[x*size_y + y] = 0;
-      imag_image[x*size_y + y] = 0;
+      // real_image[x*size_y + y] = 0;
+      // imag_image[x*size_y + y] = 0;
+
+      real_image[y*size_x + x] = 0;
+      imag_image[y*size_x + x] = 0;
     }
   }
 
