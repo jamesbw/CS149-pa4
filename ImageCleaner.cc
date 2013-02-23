@@ -253,27 +253,27 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eight7Y = size_y - eightY;
 
   #pragma omp parallel for schedule(static, eightX)
-  for(unsigned int x = 0; x < size_x; x++)
+  for(unsigned int y = 0; y < size_y; y++)
   {
-  //   if (x < eightX || x >= eight7X)
-  //   {
-  //     memset(real_image + x*size_x + eightY, 0, eight7Y - eightY);
-  //   }
-  //   else
-  //     memset(real_image + x*size_x, 0, size_y);
-  // }
-    for(unsigned int y = 0; y < size_y; y++)
+    if (y < eightY || y >= eight7Y)
     {
-      if(!(x < eightX && y < eightY) &&
-	 !(x < eightX && y >= eight7Y) &&
-	 !(x >= eight7X && y < eightY) &&
-	 !(x >= eight7X && y >= eight7Y))
-      {
-	// Zero out these values
-	real_image[x*size_x + y] = 0;
-	imag_image[x*size_x + y] = 0;
-      }
+      memset(real_image + y*size_x + eightX, 0, eight7X - eightX);
     }
+    else
+      memset(real_image + y*size_x, 0, size_x);
+  }
+ //    for(unsigned int y = 0; y < size_y; y++)
+ //    {
+ //      if(!(x < eightX && y < eightY) &&
+	//  !(x < eightX && y >= eight7Y) &&
+	//  !(x >= eight7X && y < eightY) &&
+	//  !(x >= eight7X && y >= eight7Y))
+ //      {
+	// // Zero out these values
+	// real_image[x*size_x + y] = 0;
+	// imag_image[x*size_x + y] = 0;
+ //      }
+ //    }
   }
 }
 
