@@ -165,7 +165,7 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
       for(unsigned int n = 0; n < size_x; n++)
       {
         int termIndex = (n * x) % size_x;
-        printf("real term: %f , computed: %f, imag: %f , %f\n", termsXreal[termIndex], fft_real[n], termsXimag[termIndex], fft_imag[n]);
+        // printf("real term: %f , computed: %f, imag: %f , %f\n", termsXreal[termIndex], fft_real[n], termsXimag[termIndex], fft_imag[n]);
         realOutBuffer[x] += (real_image[n*size_x + y] * termsXreal[termIndex]) - (imag_image[n*size_x + y] * termsXimag[termIndex]);
         imagOutBuffer[x] += (imag_image[n*size_x + y] * termsXreal[termIndex]) + (real_image[n*size_x + y] * termsXimag[termIndex]);
       	// realOutBuffer[x] += (real_image[n*size_x + y] * fft_real[n]) - (imag_image[n*size_x + y] * fft_imag[n]);
