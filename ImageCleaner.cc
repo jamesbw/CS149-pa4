@@ -265,30 +265,30 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   #pragma omp parallel for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
-    if (x < eightX || x >= eight7X)
+  //   if (x < eightX || x >= eight7X)
+  //   {
+  //     memset(real_image + x*size_x + eightY, 0, eight7Y - eightY);
+  //     memset(imag_image + x*size_x + eightY, 0, eight7Y - eightY);
+  //   }
+  //   else
+  //   {
+  //     memset(real_image + x*size_x, 0, size_x);
+  //     memset(imag_image + x*size_x, 0, size_x);
+  //   }
+  // }
+    for(unsigned int y = 0; y < size_y; y++)
     {
-      memset(real_image + x*size_x + eightY, 0, eight7Y - eightY);
-      memset(imag_image + x*size_x + eightY, 0, eight7Y - eightY);
-    }
-    else
-    {
-      memset(real_image + x*size_x, 0, size_x);
-      memset(imag_image + x*size_x, 0, size_x);
+      if(!(x < eightX && y < eightY) &&
+	 !(x < eightX && y >= eight7Y) &&
+	 !(x >= eight7X && y < eightY) &&
+	 !(x >= eight7X && y >= eight7Y))
+      {
+	// Zero out these values
+	real_image[y*size_x + x] = 0;
+	imag_image[y*size_x + x] = 0;
+      }
     }
   }
- //    for(unsigned int y = 0; y < size_y; y++)
- //    {
- //      if(!(x < eightX && y < eightY) &&
-	//  !(x < eightX && y >= eight7Y) &&
-	//  !(x >= eight7X && y < eightY) &&
-	//  !(x >= eight7X && y >= eight7Y))
- //      {
-	// // Zero out these values
-	// real_image[y*size_x + x] = 0;
-	// imag_image[y*size_x + x] = 0;
- //      }
- //    }
- //  }
 }
 
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
