@@ -146,8 +146,8 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
     // Allocate some space for temporary values
     float *realOutBuffer = new float[size_y];
     float *imagOutBuffer = new float[size_y];
-    float *fft_real = new float[size_x];
-    float *fft_imag = new float[size_x];
+    // float *fft_real = new float[size_x];
+    // float *fft_imag = new float[size_x];
 
     for(unsigned int x = 0; x < size_x; x++)
     {
@@ -181,8 +181,8 @@ void cpu_ffty(float *real_image, float *imag_image, int size_x, int size_y, floa
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    delete [] fft_real;
-    delete [] fft_imag;
+    // delete [] fft_real;
+    // delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
@@ -206,8 +206,8 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
     // Create some space for storing temporary values
     float *realOutBuffer = new float[size_y];
     float *imagOutBuffer = new float[size_y];
-    float *fft_real = new float[size_x];
-    float *fft_imag = new float[size_x];
+    // float *fft_real = new float[size_x];
+    // float *fft_imag = new float[size_x];
 
     for(unsigned int x = 0; x < size_x; x++)
     {
@@ -245,8 +245,8 @@ void cpu_iffty(float *real_image, float *imag_image, int size_x, int size_y, flo
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    delete [] fft_real;
-    delete [] fft_imag;
+    // delete [] fft_real;
+    // delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
@@ -359,6 +359,20 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
 
+  // Perform an inverse fft with respect to the y direction
+  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+
+  // End timing
+  gettimeofday(&tv2,&tz2);
+  // Compute the time difference in micro-seconds
+  execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
+  // Convert to milli-seconds
+  execution /= 1000;
+  // Print some output
+  printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
+  printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
+
+
 
   // Perform an inverse fft with respect to the x direction
   cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
@@ -372,19 +386,6 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // Print some output
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
-
-  // Perform an inverse fft with respect to the y direction
-  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
-
-  // End timing
-  gettimeofday(&tv2,&tz2);
-  // Compute the time difference in micro-seconds
-  execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-  // Convert to milli-seconds
-  execution /= 1000;
-  // Print some output
-  printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-  printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
 
   // End timing
   gettimeofday(&tv2,&tz2);
