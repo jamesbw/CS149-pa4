@@ -265,26 +265,26 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   #pragma omp parallel for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
-  //   if (y < eightY || y >= eight7Y)
-  //   {
-  //     memset(real_image + y*size_x + eightX, 0, eight7X - eightX);
-  //   }
-  //   else
-  //     memset(real_image + y*size_x, 0, size_y);
-  // }
-    for(unsigned int y = 0; y < size_y; y++)
+    if (x < eightX || x >= eight7X)
     {
-      if(!(x < eightX && y < eightY) &&
-	 !(x < eightX && y >= eight7Y) &&
-	 !(x >= eight7X && y < eightY) &&
-	 !(x >= eight7X && y >= eight7Y))
-      {
-	// Zero out these values
-	real_image[y*size_x + x] = 0;
-	imag_image[y*size_x + x] = 0;
-      }
+      memset(real_image + x*size_x + eightY, 0, eight7Y - eightY);
     }
+    else
+      memset(real_image + x*size_x, 0, size_x);
   }
+ //    for(unsigned int y = 0; y < size_y; y++)
+ //    {
+ //      if(!(x < eightX && y < eightY) &&
+	//  !(x < eightX && y >= eight7Y) &&
+	//  !(x >= eight7X && y < eightY) &&
+	//  !(x >= eight7X && y >= eight7Y))
+ //      {
+	// // Zero out these values
+	// real_image[y*size_x + x] = 0;
+	// imag_image[y*size_x + x] = 0;
+ //      }
+ //    }
+ //  }
 }
 
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
@@ -360,7 +360,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
 
   // Perform an inverse fft with respect to the y direction
-  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  // cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -375,7 +375,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform an inverse fft with respect to the x direction
-  cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  // cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
