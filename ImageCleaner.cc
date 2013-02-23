@@ -25,18 +25,18 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, floa
     float *realOutBuffer = new float[size_x];
     float *imagOutBuffer = new float[size_x];
     // Local values
-    // float *fft_real = new float[size_y];
-    // float *fft_imag = new float[size_y];
+    float *fft_real = new float[size_y];
+    float *fft_imag = new float[size_y];
 
     for(unsigned int y = 0; y < size_y; y++)
     {
       // Compute the frequencies for this index
- //      for(unsigned int n = 0; n < size_y; n++)
- //      {
-	// float term = -2 * PI * y * n / size_y;
-	// fft_real[n] = cos(term);
-	// fft_imag[n] = sin(term);
- //      }
+      for(unsigned int n = 0; n < size_y; n++)
+      {
+	float term = -2 * PI * y * n / size_y;
+	fft_real[n] = cos(term);
+	fft_imag[n] = sin(term);
+      }
 
       // Compute the value for this index
       realOutBuffer[y] = 0.0f;
@@ -44,8 +44,10 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, floa
       for(unsigned int n = 0; n < size_y; n++)
       {
         int termIndex = (n * y) % size_y;
-      	realOutBuffer[y] += (real_image[x*size_x + n] * termsYreal[termIndex]) - (imag_image[x*size_x + n] * termsYimag[termIndex]);
-      	imagOutBuffer[y] += (imag_image[x*size_x + n] * termsYreal[termIndex]) + (real_image[x*size_x + n] * termsYimag[termIndex]);
+      	// realOutBuffer[y] += (real_image[x*size_x + n] * termsYreal[termIndex]) - (imag_image[x*size_x + n] * termsYimag[termIndex]);
+      	// imagOutBuffer[y] += (imag_image[x*size_x + n] * termsYreal[termIndex]) + (real_image[x*size_x + n] * termsYimag[termIndex]);
+        realOutBuffer[y] += (real_image[x*size_x + n] * fft_real[n]) - (imag_image[x*size_x + n] * fft_imag[n]);
+        imagOutBuffer[y] += (imag_image[x*size_x + n] * fft_real[n]) + (real_image[x*size_x + n] * fft_imag[n]);
       }
     }
     // Write the buffer back to were the original values were
@@ -57,8 +59,8 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, floa
     // Reclaim some memory
     delete [] realOutBuffer;
     delete [] imagOutBuffer;
-    // delete [] fft_real;
-    // delete [] fft_imag;
+    delete [] fft_real;
+    delete [] fft_imag;
   }
   // // Reclaim some memory
   // delete [] realOutBuffer;
