@@ -103,10 +103,13 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert)
       }
     }
   }
-  for (int i = 0; i < size; ++i)
+  if (invert)
   {
-    real[i] /= size;
-    imag[i] /= size;
+    for (int i = 0; i < size; ++i)
+    {
+      real[i] /= size;
+      imag[i] /= size;
+    }
   }
 }
 
@@ -137,10 +140,13 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
     }
   }
 
-  for (int i = 0; i < size; ++i)
+  if (invert)
   {
-    real[i] /= size;
-    imag[i] /= size;
+    for (int i = 0; i < size; ++i)
+    {
+      real[i] /= size;
+      imag[i] /= size;
+    }
   }
 
   bit_reverse(real, rev, size);
