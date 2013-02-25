@@ -327,6 +327,10 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   #pragma omp for
   for (int row = 0; row < size; ++row)
   {
+    if (row = 0)
+    {
+      printf("Thread %d got row 0\n", omp_get_thread_num());
+    }
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
   }
 }
@@ -392,44 +396,6 @@ float stats(char *msg,struct timeval *tv1, struct timezone *tz1, struct timeval 
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 {
 
-  // int p = 8;
-  // int s = p*p;
-  // float *matrix = new float[s];
-  // for (int i = 0; i < s; ++i)
-  // {
-  //   matrix[i] = i;
-  // }
-
-  // for (int row = 0; row < p; ++row)
-  // {
-  //   for (int col = 0; col < p; ++col)
-  //   {
-  //     printf("%f ", matrix[row*p + col]);
-  //   }
-  //   printf("\n");
-  // }
-  // printf("\n");
-
-  // // transpose(matrix, p);
-  // int half_size = p >> 1;
-  // int quarter_size = half_size >> 1;
-  // int three_quarter_size = half_size + quarter_size;
-  // swap_submatrices(matrix + half_size, matrix + p * half_size, quarter_size, p);
-  // swap_submatrices(matrix + three_quarter_size, matrix + p * half_size + quarter_size, quarter_size, p);
-  // swap_submatrices(matrix + half_size + p * quarter_size, matrix + p * three_quarter_size, quarter_size, p);
-  // swap_submatrices(matrix + three_quarter_size + p*quarter_size, matrix + p * three_quarter_size + quarter_size, quarter_size, p);
-
-  // for (int row = 0; row < p; ++row)
-  // {
-  //   for (int col = 0; col < p; ++col)
-  //   {
-  //     printf("%f ", matrix[row*p + col]);
-  //   }
-  //   printf("\n");
-  // }
-  // printf("\n");
-
-
   // These are used for timing
   struct timeval tv1, tv2;
   struct timezone tz1, tz2;
@@ -454,7 +420,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   short *rev = new short[half_size];
   build_bit_rev_index(rev, size);
 
-  execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
+  // execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
 
   #pragma omp parallel
   {
@@ -464,124 +430,53 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // Perform fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
-    // // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // float execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Kernel FFTX Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
-    }
-    // transpose(real_image, size);
-    // transpose(imag_image, size);
+    // #pragma omp single
+    // { 
+    //   execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    // }
+
     transpose_parallel(real_image, imag_image, size);
 
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    // }
 
     // Perform fft with respect to the y direction
-    // fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
     fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
-
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Kernel FFTY Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
-    }
-
+    // #pragma omp single
+    // { 
+    //   execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
+    // }
 
     // Filter the transformed image
     cpu_filter(real_image, imag_image, size_x, size_y);
 
-
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
+    // }
 
     // Perform an inverse fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
+    // }
 
-    // transpose(real_image, size);
-    // transpose(imag_image, size);
     transpose_parallel(real_image, imag_image, size);
 
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
-    #pragma omp single
-    { 
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    // }
 
 
     // Perform an inverse fft with respect to the y direction
-    // fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
-    // End timing
-    // gettimeofday(&tv2,&tz2);
-    // // Compute the time difference in micro-seconds
-    // execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
-    // // Convert to milli-seconds
-    // execution /= 1000;
-    // // Print some output
-    // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
-    // printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
       execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
