@@ -228,6 +228,7 @@ void transpose_parallel(float *real, float *imag, int size)
         {
           swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
         }
+      }
 
   // swap_submatrices(real + half_size, real + size * half_size, half_size, size);
   // swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
