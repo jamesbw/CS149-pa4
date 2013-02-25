@@ -457,6 +457,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
 
+  execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
+
   #pragma omp parallel
   {
     
@@ -493,7 +495,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
     }
 
     // Perform fft with respect to the y direction
@@ -512,7 +514,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Kernel FFTY Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
     }
 
 
@@ -531,7 +533,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
     }
 
     // Perform an inverse fft with respect to the x direction
@@ -548,7 +550,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
     }
 
     // transpose(real_image, size);
@@ -566,7 +568,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
     }
 
 
@@ -585,7 +587,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
     #pragma omp single
     { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
     }
 
   }
