@@ -368,7 +368,6 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   #pragma omp for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
-    printf("There are %d threads active\n", omp_get_num_threads());
     if (x < eightX || x >= eight7X)
     {
       memset(real_image + x*size_x + eightY, 0, (eight7Y - eightY) * sizeof(float));
