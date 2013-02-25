@@ -84,9 +84,9 @@ void forward_fourier(float *real, float *imag, int size, short *rev)
 
 void fft_row(float *real, float *imag, int size, short *rev)
 {
-  #pragma omp parallel for
   for (int row = 0; row < size; ++row)
   {
+    printf("Processing row: %d\n", row);
     forward_fourier(real + row*size, imag + row*size, size, rev);
   }
 }
@@ -440,9 +440,15 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   }
 
   int size = size_x;
+  printf("Size is: %d\n", size);
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
-
+  printf("Rev array is:\n");
+  for (int i = 0; i < size / 2; ++i)
+  {
+    printf("%d, ", rev[i]);
+  }
+  printf("\n\n");
 
   // Perform fft with respect to the x direction
   // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
