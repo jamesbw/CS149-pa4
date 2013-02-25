@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include <omp.h>
 #include <string.h>
-#include <string>
-
-using namespace std;
 
 #define PI	3.14159265
 #define CACHE_LINE_SIZE 64
@@ -129,7 +126,7 @@ void transpose(float *matrix, int size)
 void transpose_parallel(float *real, float *imag, int size)
 {
   int half_size = size >> 1;
-  #pragma omp parallel sections
+  #pragma omp sections
       {
       #pragma omp section
         {
@@ -176,7 +173,7 @@ void transpose_parallel(float *real, float *imag, int size)
   int quarter_size = half_size >> 1;
   int three_quarter_size = half_size + quarter_size;
 
-  #pragma omp parallel sections
+  #pragma omp sections
       {
       #pragma omp section
         {
@@ -220,7 +217,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       }  /* end of sections */
 
-  // #pragma omp parallel sections
+  // #pragma omp sections
   //     {
   //     #pragma omp section
   //       {
@@ -331,7 +328,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp parallel for
+  #pragma omp for
   for (int row = 0; row < size; ++row)
   {
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
@@ -340,7 +337,7 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
 
 void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp parallel for
+  #pragma omp for
   for (int col = 0; col < size; ++col)
   {
     float *real_col = new float[size];
@@ -368,9 +365,10 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eightY = size_y/8;
   int eight7Y = size_y - eightY;
 
-  #pragma omp parallel for schedule(static, eightX)
+  #pragma omp for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
+    printf("There are %d threads active\n", omp_get_num_threads());
     if (x < eightX || x >= eight7X)
     {
       memset(real_image + x*size_x + eightY, 0, (eight7Y - eightY) * sizeof(float));
@@ -384,7 +382,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   }
 }
 
-float stats(string msg,struct timeval *tv1, struct timezone *tz1, struct timeval *tv2, struct timezone *tz2)
+float stats(char *msg,struct timeval *tv1, struct timezone *tz1, struct timeval *tv2, struct timezone *tz2)
 {
   gettimeofday(tv2,tz2);
   float execution = ((tv2->tv_sec-tv1->tv_sec)*1000000+(tv2->tv_usec-tv1->tv_usec));
@@ -460,7 +458,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
 
-  // #pragma omp parallel
+  #pragma omp parallel
   {
     // int tid = omp_get_thread_num();
     int tid = 0;
