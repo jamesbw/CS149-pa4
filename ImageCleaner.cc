@@ -127,36 +127,59 @@ void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool pr
 
 void fft_row(float *real, float *imag, int size, short *rev)
 {
-  printf("Real 1st row before fft:\n");
-  for (int i = 0; i < size; ++i)
-  {
-    printf("%f, ", real[i]);
-  }
-  printf("\n");
-  printf("Imag 1st row before fft:\n");
-  for (int i = 0; i < size; ++i)
-  {
-    printf("%f, ", imag[i]);
-  }
-  printf("\n");
+  // printf("Real 1st row before fft:\n");
+  // for (int i = 0; i < size; ++i)
+  // {
+  //   printf("%f, ", real[i]);
+  // }
+  // printf("\n");
+  // printf("Imag 1st row before fft:\n");
+  // for (int i = 0; i < size; ++i)
+  // {
+  //   printf("%f, ", imag[i]);
+  // }
+  // printf("\n");
+  #pragma parallel for
   for (int row = 0; row < size; ++row)
   {
-    // printf("Processing row: %d\n", row);
     forward_fourier_dit(real + row*size, imag + row*size, size, rev, 0);
   }
-  printf("\n");
-  printf("Real 1st row after fft:\n");
-  for (int i = 0; i < size; ++i)
+  // printf("\n");
+  // printf("Real 1st row after fft:\n");
+  // for (int i = 0; i < size; ++i)
+  // {
+  //   printf("%f, ", real[i]);
+  // }
+  // printf("\n");
+  // printf("Imag 1st row after fft:\n");
+  // for (int i = 0; i < size; ++i)
+  // {
+  //   printf("%f, ", imag[i]);
+  // }
+  // printf("\n");
+}
+
+void fft_col(float *real, float *imag, int size, short *rev)
+{
+  #pragma parallel for
+  for (int col = 0; col < size; ++col)
   {
-    printf("%f, ", real[i]);
+    float *real_col = new float[size];
+    float *imag_col = new float[size];
+    for(unsigned int row = 0; row < size; row++)
+    {
+      real_col[row] = real_image[row*size + col];
+      imag_col[row] = imag_image[row*size + col];
+    }
+
+    forward_fourier_dit(real_col, imag_col, size, rev, 0);
+
+    for(unsigned int row = 0; row < size; row++)
+    {
+      real_image[row*size + col] = real_col[row];
+      imag_image[row*size + col] = imag_col[row];
+    }
   }
-  printf("\n");
-  printf("Imag 1st row after fft:\n");
-  for (int i = 0; i < size; ++i)
-  {
-    printf("%f, ", imag[i]);
-  }
-  printf("\n");
 }
 
 void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, float *termsYreal, float *termsYimag)
@@ -481,39 +504,39 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 {
 
-  int s = 32;
-  float *real = new float[s];
-  float *imag = new float[s];
-  short *r = new short[s/2];
-  build_bit_rev_index(r, s);
+  // int s = 32;
+  // float *real = new float[s];
+  // float *imag = new float[s];
+  // short *r = new short[s/2];
+  // build_bit_rev_index(r, s);
 
-  for (int i = 0; i < s; ++i)
-  {
-    real[i] = i;
-    imag[i] = 0;
-  }
-  forward_fourier_dit(real, imag, s, r, 1);
-  printf("\n");
-  for (int i = 0; i < s; ++i)
-  {
-    printf("%f + %fi\n", real[i], imag[i]);
-    imag[i] = 0;
-  }
-  printf("\n");
+  // for (int i = 0; i < s; ++i)
+  // {
+  //   real[i] = i;
+  //   imag[i] = 0;
+  // }
+  // forward_fourier_dit(real, imag, s, r, 1);
+  // printf("\n");
+  // for (int i = 0; i < s; ++i)
+  // {
+  //   printf("%f + %fi\n", real[i], imag[i]);
+  //   imag[i] = 0;
+  // }
+  // printf("\n");
 
-  for (int i = 0; i < s; ++i)
-  {
-    real[i] = i;
-    imag[i] = 0;
-  }
-  forward_fourier_dif(real, imag, s, r, 1);
-  printf("\n");
-  for (int i = 0; i < s; ++i)
-  {
-    printf("%f + %fi\n", real[i], imag[i]);
-    imag[i] = 0;
-  }
-  printf("\n");
+  // for (int i = 0; i < s; ++i)
+  // {
+  //   real[i] = i;
+  //   imag[i] = 0;
+  // }
+  // forward_fourier_dif(real, imag, s, r, 1);
+  // printf("\n");
+  // for (int i = 0; i < s; ++i)
+  // {
+  //   printf("%f + %fi\n", real[i], imag[i]);
+  //   imag[i] = 0;
+  // }
+  // printf("\n");
 
 
 
@@ -574,7 +597,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform fft with respect to the y direction
-  cpu_ffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  // cpu_ffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  fft_col(real_image, imag_image, size, rev);
 
   // End timing
   gettimeofday(&tv2,&tz2);
