@@ -186,7 +186,7 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   // printf("\n");
 }
 
-void fft_col(float *real, float *imag, int size, short *rev, bool invert)
+void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
   #pragma parallel for
   for (int col = 0; col < size; ++col)
@@ -199,7 +199,7 @@ void fft_col(float *real, float *imag, int size, short *rev, bool invert)
       imag_col[row] = imag[row*size + col];
     }
 
-    fourier_dit(real_col, imag_col, size, rev, invert);
+    fourier_dit(real_col, imag_col, size, rev, invert, roots_real, roots_imag);
 
     for(unsigned int row = 0; row < size; row++)
     {
@@ -636,7 +636,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   // Perform fft with respect to the y direction
   // cpu_ffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
-  fft_col(real_image, imag_image, size, rev, false);
+  fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -665,7 +665,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   // Perform an inverse fft with respect to the x direction
   // cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
-  fft_row(real_image, imag_image, size, rev, true);
+  fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -680,7 +680,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   // Perform an inverse fft with respect to the y direction
   // cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
-  fft_col(real_image, imag_image, size, rev, true);
+  fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
