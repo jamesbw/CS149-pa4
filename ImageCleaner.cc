@@ -76,7 +76,7 @@ void swap_submatrices(float *submatrix1, float *submatrix2, int sub_size, int ma
   {
     int row_offset = row * mat_size;
     memcpy(temp, submatrix1 + row_offset, size_bytes);
-    memcpy(submatrix1 + row_offset, submatrix2 + mat_size * row, size_bytes);
+    memcpy(submatrix1 + row_offset, submatrix2 + row_offset, size_bytes);
     memcpy(submatrix2 + row_offset, temp, size_bytes);
   }
 }
@@ -391,7 +391,11 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   }
   printf("\n");
 
-  transpose(matrix, p);
+  // transpose(matrix, p);
+  int half_size = p >> 1;
+  int quarter_size = half_size >> 1;
+  int three_quarter_size = half_size + quarter_size;
+  swap_submatrices(matrix + three_quarter_size, matrix + p * three_quarter_size, quarter_size, p);
 
   for (int row = 0; row < p; ++row)
   {
