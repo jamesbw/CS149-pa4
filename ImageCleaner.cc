@@ -27,20 +27,6 @@ void build_bit_rev_index(short *arr, int size)
       arr[nk-l] = arr[nk] - arr[l];
     }
   }
-  // res = [None] * (1 << (p-1))
-  // res[0] = 0
-  // res[1] = 1 << (p-1)
-  // if p < 3:
-  //   return res
-  // res[2] = 1 << (p-2)
-  // res[3] = res[1] + res[2]
-  // for k in xrange(3, p):
-  //   nk = (1 << k) - 1
-  //   nkminus1 = (1 << (k -1)) - 1
-  //   res[nk] = res[nkminus1] + (1 << (p-k))
-  //   for l in xrange(1, nkminus1 + 1):
-  //     res[nk - l] = res[nk] - res[l]
-  // return res
 }
 
 void bit_reverse(float *values, short *rev, int size)
@@ -99,10 +85,30 @@ void forward_fourier(float *real, float *imag, int size, short *rev)
 
 void fft_row(float *real, float *imag, int size, short *rev)
 {
+  printf("Real 1st row before fft:\n");
+  for (int i = 0; i < size; ++i)
+  {
+    printf("%f, ", real[i]);
+  }
+  printf("Imag 1st row before fft:\n");
+  for (int i = 0; i < size; ++i)
+  {
+    printf("%f, ", imag[i]);
+  }
   for (int row = 0; row < size; ++row)
   {
-    printf("Processing row: %d\n", row);
+    // printf("Processing row: %d\n", row);
     forward_fourier(real + row*size, imag + row*size, size, rev);
+  }
+  printf("Real 1st row after fft:\n");
+  for (int i = 0; i < size; ++i)
+  {
+    printf("%f, ", real[i]);
+  }
+  printf("Imag 1st row after fft:\n");
+  for (int i = 0; i < size; ++i)
+  {
+    printf("%f, ", imag[i]);
   }
 }
 
@@ -455,15 +461,15 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   }
 
   int size = size_x;
-  printf("Size is: %d\n", size);
+  // printf("Size is: %d\n", size);
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
-  printf("Rev array is:\n");
-  for (int i = 0; i < size / 2; ++i)
-  {
-    printf("%d, ", rev[i]);
-  }
-  printf("\n\n");
+  // printf("Rev array is:\n");
+  // for (int i = 0; i < size / 2; ++i)
+  // {
+  //   printf("%d, ", rev[i]);
+  // }
+  // printf("\n\n");
 
   // Perform fft with respect to the x direction
   // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
