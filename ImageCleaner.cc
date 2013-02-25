@@ -164,7 +164,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   #pragma parallel for
   for (int row = 0; row < size; ++row)
   {
-    forward_dit(real + row*size, imag + row*size, size, rev, 0);
+    fourier_dit(real + row*size, imag + row*size, size, rev, 0);
   }
   // printf("\n");
   // printf("Real 1st row after fft:\n");
