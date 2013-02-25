@@ -90,26 +90,31 @@ void fft_row(float *real, float *imag, int size, short *rev)
   {
     printf("%f, ", real[i]);
   }
+  printf("\n");
   printf("Imag 1st row before fft:\n");
   for (int i = 0; i < size; ++i)
   {
     printf("%f, ", imag[i]);
   }
+  printf("\n");
   for (int row = 0; row < size; ++row)
   {
     // printf("Processing row: %d\n", row);
     forward_fourier(real + row*size, imag + row*size, size, rev);
   }
+  printf("\n");
   printf("Real 1st row after fft:\n");
   for (int i = 0; i < size; ++i)
   {
     printf("%f, ", real[i]);
   }
+  printf("\n");
   printf("Imag 1st row after fft:\n");
   for (int i = 0; i < size; ++i)
   {
     printf("%f, ", imag[i]);
   }
+  printf("\n");
 }
 
 void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, float *termsYreal, float *termsYimag)
