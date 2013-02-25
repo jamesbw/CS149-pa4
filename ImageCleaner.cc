@@ -52,7 +52,7 @@ void bit_reverse(float *values, short *rev, int size)
   }
 }
 
-void butterfly_forward(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
+void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
 {
   float r1 = real[ind1];
   float r2 = real[ind2];
@@ -63,7 +63,18 @@ void butterfly_forward(float *real, float *imag, int ind1, int ind2, float real_
   imag[ind1] = i1 + imag_twiddle * r2 + imag[ind2] * real_twiddle;
   imag[ind2] = i1 - (imag_twiddle * r2 + imag[ind2] * real_twiddle);
 }
-void forward_fourier(float *real, float *imag, int size, short *rev, bool print)
+void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
+{
+  float r1 = real[ind1];
+  float r2 = real[ind2];
+  real[ind1] = r1 + r2;
+  real[ind2] = real_twiddle * (r1 - r2) - imag_twiddle * (r1 - r2);
+
+  float i1 = imag[ind1];
+  imag[ind1] = i1 + imag[ind2];
+  imag[ind2] = imag_twiddle * (r1 - r2) + real_twiddle * (i1 - imag[ind2])
+}
+void forward_fourier_dit(float *real, float *imag, int size, short *rev, bool print)
 {
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
@@ -83,10 +94,35 @@ void forward_fourier(float *real, float *imag, int size, short *rev, bool print)
         {
           printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
         }
-        butterfly_forward(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
     }
   }
+}
+
+void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool print)
+{
+  for (int span = size >> 1; span; span >>= 1)
+  {
+    int num_units = size / (2 * span);
+    for (int unit = 0; unit < num_units; ++unit)
+    {
+      int two_unit_span = 2 * unit * span;
+      for (int i = 0; i < span; ++i)
+      {
+        int twiddle_index = i * num_units;
+        float real_twiddle = cos(2.0*PI*twiddle_index/ size);
+        float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
+        if (print)
+        {
+          printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        }
+        butterfly_forward_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+      }
+    }
+  }
+  bit_reverse(real, rev, size);
+  bit_reverse(imag, rev, size);
 }
 
 void fft_row(float *real, float *imag, int size, short *rev)
@@ -106,7 +142,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   for (int row = 0; row < size; ++row)
   {
     // printf("Processing row: %d\n", row);
-    forward_fourier(real + row*size, imag + row*size, size, rev, row == 0);
+    forward_fourier_dif(real + row*size, imag + row*size, size, rev, row == 0);
   }
   printf("\n");
   printf("Real 1st row after fft:\n");
