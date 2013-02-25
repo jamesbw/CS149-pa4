@@ -264,7 +264,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
 
-  for (int span = 1; int num_units = size >> 1; span < size; span <<= 1; num_units >>= 1)
+  for (int span = 1, num_units = size >> 1; span < size; span <<= 1, num_units >>= 1)
   {
     for (int unit = 0; unit < num_units; ++unit)
     {
