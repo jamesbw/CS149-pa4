@@ -85,7 +85,7 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
     {
       for (int col = 0; col < sub_size; ++col)
       {
-        temp[row*sub_size + col] = top_left[col + row * mat_size];
+        temp[col*sub_size + row] = top_left[col + row * mat_size];
       }
     }
     for (int row = 0; row < sub_size; ++row)
