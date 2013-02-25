@@ -41,7 +41,9 @@ void bit_reverse(float *values, short *rev, int size)
       temp = values[i];
       values[i] = values[index];
       values[index] = temp;
-
+    }
+    if (i + l < index + 1)
+    {
       //rev covers only even indices. Odd pairs are the same but translated by size/2.
       temp = values[i + l];
       values[i + l] = values[index+1];
