@@ -121,8 +121,8 @@ void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool pr
       }
     }
   }
-  // bit_reverse(real, rev, size);
-  // bit_reverse(imag, rev, size);
+  bit_reverse(real, rev, size);
+  bit_reverse(imag, rev, size);
 }
 
 void fft_row(float *real, float *imag, int size, short *rev)
@@ -142,7 +142,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   for (int row = 0; row < size; ++row)
   {
     // printf("Processing row: %d\n", row);
-    forward_fourier_dit(real + row*size, imag + row*size, size, rev, row == 0);
+    forward_fourier_dit(real + row*size, imag + row*size, size, rev, 0);
   }
   printf("\n");
   printf("Real 1st row after fft:\n");
