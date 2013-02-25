@@ -395,7 +395,10 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   int half_size = p >> 1;
   int quarter_size = half_size >> 1;
   int three_quarter_size = half_size + quarter_size;
-  swap_submatrices(matrix + three_quarter_size, matrix + p * three_quarter_size, quarter_size, p);
+  swap_submatrices(matrix + half_size, matrix + p * half_size, quarter_size, p);
+  swap_submatrices(matrix + three_quarter_size, matrix + p * half_size + quarter_size, quarter_size, p);
+  swap_submatrices(matrix + half_size + p * quarter_size, matrix + p * three_quarter_size, quarter_size, p);
+  swap_submatrices(matrix + three_quarter_size + p*quarter_size, matrix + p * three_quarter_size + quarter_size, quarter_size, p);
 
   for (int row = 0; row < p; ++row)
   {
