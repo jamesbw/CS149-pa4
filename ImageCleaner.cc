@@ -66,11 +66,15 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
   //swap
   float *temp = new float[sub_size_half];
   int offset = mat_size * top + left;
+  int top_right_submatrix = matrix + offset + sub_size_half;
+  int bottom_left_submatrix = matrix + offset + mat_size * sub_size_half;
+  int size_bytes = sizeof(float) * sub_size_half;
   for (int row = 0; row < sub_size_half; ++row)
   {
-    memcpy(temp, matrix + offset + sub_size_half + row* mat_size, sizeof(float) * sub_size_half);
-    memcpy(matrix + offset + sub_size_half + row* mat_size, matrix + offset + mat_size * (sub_size_half + row), sizeof(float) * sub_size_half);
-    memcpy(matrix + offset + mat_size * (sub_size_half + row), temp, sizeof(float) * sub_size_half);
+    int row_offset = row * mat_size;
+    memcpy(temp, top_right_submatrix + row_offset, size_bytes);
+    memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
+    memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
   }
 }
 
