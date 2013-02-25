@@ -476,7 +476,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel FFTX Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("FFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
     
     // transpose(real_image, size);
     // transpose(imag_image, size);
@@ -492,7 +492,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("Transpose", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
 
     // Perform fft with respect to the y direction
     // fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
@@ -509,7 +509,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel FFTY Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("FFTY", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
 
 
     // Filter the transformed image
@@ -525,7 +525,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("Filter", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
 
     // Perform an inverse fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
@@ -540,7 +540,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("IFFTY", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
 
     transpose(real_image, size);
     transpose(imag_image, size);
@@ -555,7 +555,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("Transpose", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
 
     // Perform an inverse fft with respect to the y direction
     // fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
@@ -571,7 +571,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
     if (tid == 0)
-      execution = stat("IFFTX", &tv1, &tz1, &tv2, &tz2);
+      execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
   }
 
 
