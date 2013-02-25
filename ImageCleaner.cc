@@ -21,11 +21,26 @@ void build_bit_rev_index(short *arr, int size)
   {
     int nk = (1 << k) - 1;
     int nkminus1 = (1 << (k -1)) - 1;
+    arr[nk] = arr[nkminus1] + (size >> k);
     for (int l = 1; l < nkminus1 + 1; ++l)
     {
       arr[nk-l] = arr[nk] - arr[l];
     }
   }
+  // res = [None] * (1 << (p-1))
+  // res[0] = 0
+  // res[1] = 1 << (p-1)
+  // if p < 3:
+  //   return res
+  // res[2] = 1 << (p-2)
+  // res[3] = res[1] + res[2]
+  // for k in xrange(3, p):
+  //   nk = (1 << k) - 1
+  //   nkminus1 = (1 << (k -1)) - 1
+  //   res[nk] = res[nkminus1] + (1 << (p-k))
+  //   for l in xrange(1, nkminus1 + 1):
+  //     res[nk - l] = res[nk] - res[l]
+  // return res
 }
 
 void bit_reverse(float *values, short *rev, int size)
