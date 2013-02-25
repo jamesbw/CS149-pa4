@@ -460,9 +460,6 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   #pragma omp parallel
   {
-    // int tid = omp_get_thread_num();
-    int tid = 0;
-    printf("There are %d threads active\n", omp_get_num_threads());
     
 
 
@@ -478,9 +475,10 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel FFTX Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
+    #pragma omp single
+    { 
       execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
-    
+    }
     // transpose(real_image, size);
     // transpose(imag_image, size);
     transpose_parallel(real_image, imag_image, size);
@@ -494,8 +492,10 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
 
     // Perform fft with respect to the y direction
     // fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
@@ -511,14 +511,15 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel FFTY Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
 
 
     // Filter the transformed image
     cpu_filter(real_image, imag_image, size_x, size_y);
 
-    printf("There are %d threads active\n", omp_get_num_threads());
 
     // End timing
     // gettimeofday(&tv2,&tz2);
@@ -529,8 +530,10 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel Filter Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
 
     // Perform an inverse fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
@@ -544,11 +547,14 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
 
-    transpose(real_image, size);
-    transpose(imag_image, size);
+    // transpose(real_image, size);
+    // transpose(imag_image, size);
+    transpose_parallel(real_image, imag_image, size);
 
     // End timing
     // gettimeofday(&tv2,&tz2);
@@ -559,8 +565,11 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
+
 
     // Perform an inverse fft with respect to the y direction
     // fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
@@ -575,8 +584,11 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // // Print some output
     // printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
     // printf("  Optimized Kernel IFFTY Execution Time: %f ms\n\n", execution);
-    if (tid == 0)
-      execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
+
   }
 
 
