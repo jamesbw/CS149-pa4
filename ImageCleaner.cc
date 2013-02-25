@@ -381,7 +381,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   }
 }
 
-float stats(char *msg,struct timeval *tv1, struct timezone *tz1, struct timeval *tv2, struct timezone *tz2)
+float stats(string msg,struct timeval *tv1, struct timezone *tz1, struct timeval *tv2, struct timezone *tz2)
 {
   gettimeofday(tv2,tz2);
   float execution = ((tv2->tv_sec-tv1->tv_sec)*1000000+(tv2->tv_usec-tv1->tv_usec));
