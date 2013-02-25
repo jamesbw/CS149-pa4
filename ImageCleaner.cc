@@ -153,7 +153,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
   bit_reverse(imag, rev, size);
 }
 
-void fft_row(float *real, float *imag, int size, short *rev)
+void fft_row(float *real, float *imag, int size, short *rev, invert)
 {
   // printf("Real 1st row before fft:\n");
   // for (int i = 0; i < size; ++i)
@@ -170,7 +170,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   #pragma parallel for
   for (int row = 0; row < size; ++row)
   {
-    fourier_dit(real + row*size, imag + row*size, size, rev, 0);
+    fourier_dit(real + row*size, imag + row*size, size, rev, invert);
   }
   // printf("\n");
   // printf("Real 1st row after fft:\n");
@@ -187,7 +187,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   // printf("\n");
 }
 
-void fft_col(float *real, float *imag, int size, short *rev)
+void fft_col(float *real, float *imag, int size, short *rev, bool invert)
 {
   #pragma parallel for
   for (int col = 0; col < size; ++col)
@@ -200,7 +200,7 @@ void fft_col(float *real, float *imag, int size, short *rev)
       imag_col[row] = imag[row*size + col];
     }
 
-    fourier_dit(real_col, imag_col, size, rev, 0);
+    fourier_dit(real_col, imag_col, size, rev, invert);
 
     for(unsigned int row = 0; row < size; row++)
     {
@@ -610,7 +610,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   // Perform fft with respect to the x direction
   // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
-  fft_row(real_image, imag_image, size, rev);
+  fft_row(real_image, imag_image, size, rev, false);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -626,7 +626,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   // Perform fft with respect to the y direction
   // cpu_ffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
-  fft_col(real_image, imag_image, size, rev);
+  fft_col(real_image, imag_image, size, rev, false);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -654,7 +654,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform an inverse fft with respect to the x direction
-  cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  // cpu_ifftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  fft_row(real_image, imag_image, size, rev, true);
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -668,7 +669,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   // Perform an inverse fft with respect to the y direction
-  cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  // cpu_iffty(real_image, imag_image, size_x, size_y, termsXreal, termsXimag);
+  fft_col(real_image, imag_image, size, rev, true);
 
   // End timing
   gettimeofday(&tv2,&tz2);
