@@ -187,7 +187,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       #pragma omp section
         {
-          swap_submatrices(real + half_size + quarter_size * size, real + three_quarter_size * size + quarter_size, quarter_size, size);
+          swap_submatrices(real + half_size + quarter_size * size, real + three_quarter_size * size, quarter_size, size);
         }
 
       #pragma omp section
@@ -207,7 +207,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       #pragma omp section
         {
-          swap_submatrices(imag + half_size + quarter_size * size, imag + half_size * size + quarter_size, quarter_size, size);
+          swap_submatrices(imag + half_size + quarter_size * size, imag + half_size * size, quarter_size, size);
         }
 
       #pragma omp section
