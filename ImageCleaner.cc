@@ -168,16 +168,16 @@ void fft_col(float *real, float *imag, int size, short *rev)
     float *imag_col = new float[size];
     for(unsigned int row = 0; row < size; row++)
     {
-      real_col[row] = real_image[row*size + col];
-      imag_col[row] = imag_image[row*size + col];
+      real_col[row] = real[row*size + col];
+      imag_col[row] = imag[row*size + col];
     }
 
     forward_fourier_dit(real_col, imag_col, size, rev, 0);
 
     for(unsigned int row = 0; row < size; row++)
     {
-      real_image[row*size + col] = real_col[row];
-      imag_image[row*size + col] = imag_col[row];
+      real[row*size + col] = real_col[row];
+      imag[row*size + col] = imag_col[row];
     }
   }
 }
