@@ -120,7 +120,7 @@ void transpose_submatrix(float *top_left, int sub_size, int mat_size)
 
 void transpose(float *matrix, int size)
 {
-  transpose_submatrix(matrix, size, size, 0, 0);
+  transpose_submatrix(matrix, size, size);
 }
 
 void transpose_parallel(float *real, float *imag, int size)
@@ -130,42 +130,42 @@ void transpose_parallel(float *real, float *imag, int size)
       {
       #pragma omp section
         {
-          transpose_submatrix(real, half_size, size, 0, 0);
+          transpose_submatrix(real, half_size, size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(real, half_size, size, half_size, 0);
+          transpose_submatrix(real + half_size, half_size, size, half_size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(real, half_size, size, 0, half_size);
+          transpose_submatrix(real + size * half_size, half_size, size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(real, half_size, size, half_size, half_size);
+          transpose_submatrix(real + half_size * (size + 1), half_size, size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(imag, half_size, size, 0, 0);
+          transpose_submatrix(imag, half_size, size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(imag, half_size, size, half_size, 0);
+          transpose_submatrix(imag + half_size, half_size, size, half_size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(imag, half_size, size, 0, half_size);
+          transpose_submatrix(imag + size * half_size, half_size, size);
         }
 
       #pragma omp section
         {
-          transpose_submatrix(imag, half_size, size, half_size, half_size);
+          transpose_submatrix(imag + half_size * (size + 1), half_size, size);
         }
 
       }  /* end of sections */
