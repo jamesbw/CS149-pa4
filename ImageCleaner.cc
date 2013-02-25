@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <omp.h>
 #include <string.h>
+#include <string>
+
+using namespace std;
 
 #define PI	3.14159265
 #define CACHE_LINE_SIZE 64
