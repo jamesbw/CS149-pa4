@@ -135,7 +135,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       #pragma omp section
         {
-          transpose_submatrix(real + half_size, half_size, size, half_size);
+          transpose_submatrix(real + half_size, half_size, size);
         }
 
       #pragma omp section
@@ -155,7 +155,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       #pragma omp section
         {
-          transpose_submatrix(imag + half_size, half_size, size, half_size);
+          transpose_submatrix(imag + half_size, half_size, size);
         }
 
       #pragma omp section
