@@ -327,7 +327,7 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   #pragma omp for
   for (int row = 0; row < size; ++row)
   {
-    if (row = 0)
+    if (row == 0)
     {
       printf("Thread %d got row 0\n", omp_get_thread_num());
     }
