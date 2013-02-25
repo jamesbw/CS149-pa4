@@ -54,11 +54,11 @@ void bit_reverse(float *values, short *rev, int size)
 
 void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int left)
 {
-  int sub_size_half = sub_size >> 1;
   float *top_left = matrix + mat_size * top + left;
   if (sub_size > FLOATS_PER_CACHE_LINE)
   {
     //transpose sub-matrices
+    int sub_size_half = sub_size >> 1;
     transpose_submatrix(matrix, sub_size_half, mat_size, top, left);
     transpose_submatrix(matrix, sub_size_half, mat_size, top, left + sub_size_half);
     transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left);
@@ -81,14 +81,14 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
   {
     //transpose manually
     float *temp = new float[sub_size * sub_size];
-    for (int row = 0; row < count; ++row)
+    for (int row = 0; row < sub_size; ++row)
     {
-      for (int col = 0; col < count; ++col)
+      for (int col = 0; col < sub_size; ++col)
       {
         temp[row*sub_size + col] = top_left[col + row * mat_size];
       }
     }
-    for (int row = 0; row < count; ++row)
+    for (int row = 0; row < sub_size; ++row)
     {
       memcpy(top_left + row * mat_size, temp + row * sub_size, sub_size);
     }
