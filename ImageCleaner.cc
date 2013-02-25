@@ -126,7 +126,7 @@ void transpose(float *matrix, int size)
 void transpose_parallel(float *real, float *imag, int size)
 {
   int half_size = size >> 1;
-  #pragma omp sections
+  #pragma omp parallel sections
       {
       #pragma omp section
         {
@@ -173,7 +173,7 @@ void transpose_parallel(float *real, float *imag, int size)
   int quarter_size = half_size >> 1;
   int three_quarter_size = half_size + quarter_size;
 
-  #pragma omp sections
+  #pragma omp parallel sections
       {
       #pragma omp section
         {
@@ -217,7 +217,7 @@ void transpose_parallel(float *real, float *imag, int size)
 
       }  /* end of sections */
 
-  // #pragma omp sections
+  // #pragma omp parallel sections
   //     {
   //     #pragma omp section
   //       {
@@ -328,7 +328,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp for
+  #pragma omp parallel for
   for (int row = 0; row < size; ++row)
   {
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
@@ -337,7 +337,7 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
 
 void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp for
+  #pragma omp parallel for
   for (int col = 0; col < size; ++col)
   {
     float *real_col = new float[size];
@@ -365,7 +365,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eightY = size_y/8;
   int eight7Y = size_y - eightY;
 
-  #pragma omp for schedule(static, eightX)
+  #pragma omp parallel for schedule(static, eightX)
   for(unsigned int x = 0; x < size_x; x++)
   {
     if (x < eightX || x >= eight7X)
@@ -457,9 +457,11 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
 
-  #pragma omp parallel
+  // #pragma omp parallel
   {
-    int tid = tid = omp_get_thread_num();
+    // int tid = omp_get_thread_num();
+    int tid = 0;
+    printf("There are %d threads active\n", omp_get_num_threads());
     
 
 
@@ -514,6 +516,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
     // Filter the transformed image
     cpu_filter(real_image, imag_image, size_x, size_y);
+
+    printf("There are %d threads active\n", omp_get_num_threads());
 
     // End timing
     // gettimeofday(&tv2,&tz2);
