@@ -301,7 +301,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // End timing
   gettimeofday(&tv2,&tz2);
   // Compute the time difference in micro-seconds
-  float execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
+  execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
   // Convert to milli-seconds
   execution /= 1000;
   // Print some output
@@ -358,7 +358,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // End timing
   gettimeofday(&tv2,&tz2);
   // Compute the time difference in micro-seconds
-  float execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
+  execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
   // Convert to milli-seconds
   execution /= 1000;
   // Print some output
