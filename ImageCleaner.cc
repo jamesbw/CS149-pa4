@@ -68,7 +68,7 @@ void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float r
   float r1 = real[ind1];
   float r2 = real[ind2];
   real[ind1] = r1 + r2;
-  real[ind2] = real_twiddle * (r1 - r2) - imag_twiddle * (r1 - r2);
+  real[ind2] = real_twiddle * (r1 - r2) - imag_twiddle * (imag[ind1] - imag[ind2]);
 
   float i1 = imag[ind1];
   imag[ind1] = i1 + imag[ind2];
@@ -92,7 +92,7 @@ void forward_fourier_dit(float *real, float *imag, int size, short *rev, bool pr
         float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
         if (print)
         {
-          // printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+          printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
         }
         butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
