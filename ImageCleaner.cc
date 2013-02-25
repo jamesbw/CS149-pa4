@@ -480,6 +480,45 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 {
+
+  int s = 8
+  float *real = new float[s];
+  float *imag = new float[s];
+  short *r = new float[s/2];
+  build_bit_rev_index(r, s);
+
+  for (int i = 0; i < s; ++i)
+  {
+    real[i] = i;
+    imag[i] = 0;
+  }
+  forward_fourier_dit(real, imag, s, r, 1);
+  printf("\n");
+  for (int i = 0; i < s; ++i)
+  {
+    printf("%f + %fi\n", real[i], imag[i]);
+    imag[i] = 0;
+  }
+  printf("\n");
+
+  for (int i = 0; i < s; ++i)
+  {
+    real[i] = i;
+    imag[i] = 0;
+  }
+  forward_fourier_dif(real, imag, s, r, 1);
+  printf("\n");
+  for (int i = 0; i < s; ++i)
+  {
+    printf("%f + %fi\n", real[i], imag[i]);
+    imag[i] = 0;
+  }
+  printf("\n");
+
+
+
+
+
   // These are used for timing
   struct timeval tv1, tv2;
   struct timezone tz1, tz2;
