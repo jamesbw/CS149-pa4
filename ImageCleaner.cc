@@ -65,9 +65,9 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
   }
   //swap
   float *temp = new float[sub_size_half];
-  int offset = mat_size * top + left;
-  int top_right_submatrix = matrix + offset + sub_size_half;
-  int bottom_left_submatrix = matrix + offset + mat_size * sub_size_half;
+  float *top_left = matrix + mat_size * top + left;
+  float *top_right_submatrix = top_left + sub_size_half;
+  float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
   int size_bytes = sizeof(float) * sub_size_half;
   for (int row = 0; row < sub_size_half; ++row)
   {
