@@ -445,16 +445,17 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   
 
   int size = size_x;
-  float *roots_real = new float[size];
-  float *roots_imag = new float[size];
+  int half_size = size >> 1;
+  float *roots_real = new float[half_size];
+  float *roots_imag = new float[half_size];
   float two_pi_over_size = - 2 * PI / size;
-  for (int i = 0; i < size; ++i)
+  for (int i = 0; i < half_size; ++i)
   {
     float term = i * two_pi_over_size;
     roots_real[i] = cos(term);
     roots_imag[i] = sin(term);
   }
-  short *rev = new short[size/2];
+  short *rev = new short[half_size];
   build_bit_rev_index(rev, size);
 
   execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
