@@ -54,22 +54,23 @@ void bit_reverse(float *values, short *rev, int size)
 
 void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int left)
 {
+  int sub_size_half = sub_size >> 1;
   if (sub_size > 1)
   {
     //transpose sub-matrices
-    transpose_submatrix(matrix, sub_size/2, mat_size, top, left);
-    transpose_submatrix(matrix, sub_size/2, mat_size, top, left + sub_size /2);
-    transpose_submatrix(matrix, sub_size/2, mat_size, top + sub_size/2, left);
-    transpose_submatrix(matrix, sub_size/2, mat_size, top + sub_size/2, left + sub_size/2);
+    transpose_submatrix(matrix, sub_size_half, mat_size, top, left);
+    transpose_submatrix(matrix, sub_size_half, mat_size, top, left + sub_size_half);
+    transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left);
+    transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left + sub_size_half);
   }
   //swap
-  float *temp = new float[sub_size/2];
+  float *temp = new float[sub_size_half];
   int offset = mat_size * top + left;
-  for (int row = 0; row < sub_size/2; ++row)
+  for (int row = 0; row < sub_size_half; ++row)
   {
-    memcpy(temp, matrix + offset + sub_size / 2 + row* mat_size, sizeof(float) * sub_size / 2);
-    memcpy(matrix + offset + sub_size / 2 + row* mat_size, matrix + offset + mat_size * (sub_size / 2 + row), sizeof(float) * sub_size / 2);
-    memcpy(matrix + offset + mat_size * (sub_size / 2 + row), temp, sizeof(float) * sub_size / 2);
+    memcpy(temp, matrix + offset + sub_size_half + row* mat_size, sizeof(float) * sub_size_half);
+    memcpy(matrix + offset + sub_size_half + row* mat_size, matrix + offset + mat_size * (sub_size_half + row), sizeof(float) * sub_size_half);
+    memcpy(matrix + offset + mat_size * (sub_size_half + row), temp, sizeof(float) * sub_size_half);
   }
 }
 
