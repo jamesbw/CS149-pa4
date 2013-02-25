@@ -47,7 +47,7 @@ void bit_reverse(float *values, short *rev, int size)
       //rev covers only even indices. Odd pairs are the same but translated by size/2.
       temp = values[i + l];
       values[i + l] = values[index+1];
-      values[index+1] = values[i+l];
+      values[index+1] = temp;
     }
   }
 }
@@ -515,7 +515,6 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   }
   printf("\n");
 
-  return 0;
 
 
 
