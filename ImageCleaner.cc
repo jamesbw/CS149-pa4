@@ -94,7 +94,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert)
           angle = -angle;
         }
         float real_twiddle = cos(angle);
-        float imag_twiddle = sin(angle);
+        float imag_twiddle = sin(-angle);
         // if (print)
         // {
         //   printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
@@ -127,7 +127,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
           angle = -angle;
         }
         float real_twiddle = cos(angle);
-        float imag_twiddle = sin(angle);
+        float imag_twiddle = sin(-angle);
         // if (print)
         // {
         //   printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
