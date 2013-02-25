@@ -92,7 +92,7 @@ void forward_fourier_dit(float *real, float *imag, int size, short *rev, bool pr
         float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
         if (print)
         {
-          printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+          // printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
         }
         butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
@@ -142,7 +142,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   for (int row = 0; row < size; ++row)
   {
     // printf("Processing row: %d\n", row);
-    forward_fourier_dif(real + row*size, imag + row*size, size, rev, row == 0);
+    forward_fourier_dit(real + row*size, imag + row*size, size, rev, row == 0);
   }
   printf("\n");
   printf("Real 1st row after fft:\n");
@@ -511,12 +511,12 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // printf("Size is: %d\n", size);
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
-  // printf("Rev array is:\n");
-  // for (int i = 0; i < size / 2; ++i)
-  // {
-  //   printf("%d, ", rev[i]);
-  // }
-  // printf("\n\n");
+  printf("Rev array is:\n");
+  for (int i = 0; i < size / 2; ++i)
+  {
+    printf("%d, ", rev[i]);
+  }
+  printf("\n\n");
 
   // Perform fft with respect to the x direction
   // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
