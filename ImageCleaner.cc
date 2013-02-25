@@ -74,7 +74,7 @@ void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float r
   imag[ind1] = i1 + imag[ind2];
   imag[ind2] = imag_twiddle * (r1 - r2) + real_twiddle * (i1 - imag[ind2]);
 }
-void forward_fourier_dit(float *real, float *imag, int size, short *rev, bool print)
+void fourier_dit(float *real, float *imag, int size, short *rev, bool invert)
 {
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
@@ -88,19 +88,29 @@ void forward_fourier_dit(float *real, float *imag, int size, short *rev, bool pr
       for (int i = 0; i < span; ++i)
       {
         int twiddle_index = i * num_units;
-        float real_twiddle = cos(2.0*PI*twiddle_index/ size);
-        float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
-        if (print)
+        float angle = 2.0*PI*twiddle_index/ size;
+        if (invert)
         {
-          printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+          angle = -angle;
         }
+        float real_twiddle = cos(angle);
+        float imag_twiddle = sin(angle);
+        // if (print)
+        // {
+        //   printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        // }
         butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
     }
   }
+  for (int i = 0; i < size; ++i)
+  {
+    real[i] /= size;
+    imag[i] /= size;
+  }
 }
 
-void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool print)
+void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
 {
   for (int span = size >> 1; span; span >>= 1)
   {
@@ -111,16 +121,28 @@ void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool pr
       for (int i = 0; i < span; ++i)
       {
         int twiddle_index = i * num_units;
-        float real_twiddle = cos(2.0*PI*twiddle_index/ size);
-        float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
-        if (print)
+        float angle = 2.0*PI*twiddle_index/ size;
+        if (invert)
         {
-          printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+          angle = -angle;
         }
+        float real_twiddle = cos(angle);
+        float imag_twiddle = sin(angle);
+        // if (print)
+        // {
+        //   printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        // }
         butterfly_forward_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
     }
   }
+
+  for (int i = 0; i < size; ++i)
+  {
+    real[i] /= size;
+    imag[i] /= size;
+  }
+
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
 }
@@ -142,7 +164,7 @@ void fft_row(float *real, float *imag, int size, short *rev)
   #pragma parallel for
   for (int row = 0; row < size; ++row)
   {
-    forward_fourier_dit(real + row*size, imag + row*size, size, rev, 0);
+    forward_dit(real + row*size, imag + row*size, size, rev, 0);
   }
   // printf("\n");
   // printf("Real 1st row after fft:\n");
@@ -172,7 +194,7 @@ void fft_col(float *real, float *imag, int size, short *rev)
       imag_col[row] = imag[row*size + col];
     }
 
-    forward_fourier_dit(real_col, imag_col, size, rev, 0);
+    fourier_dit(real_col, imag_col, size, rev, 0);
 
     for(unsigned int row = 0; row < size; row++)
     {
