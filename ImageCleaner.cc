@@ -65,10 +65,10 @@ void forward_fourier(float *real, float *imag, int size, short *rev)
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
 
-  for (int span = 1; i < size; span <<= 1)
+  for (int span = 1; span < size; span <<= 1)
   {
     int num_units = size / (2 * span);
-    for (int unit = 0; unit < num_units; ++j)
+    for (int unit = 0; unit < num_units; ++unit)
     {
       int two_unit_span = 2 * unit * span;
       for (int i = 0; i < span; ++i)
@@ -79,13 +79,6 @@ void forward_fourier(float *real, float *imag, int size, short *rev)
         butterfly_forward(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
     }
-
-    for j in range(0, size/ (2 * span)):
-      for i in range(2*j*span, span + 2*j*span):
-        #e(-2iPI/(size/span)*j)
-        twiddle_index = (i % span) * size/ (2 * span)
-        print twiddle_index, i, i+span
-        do(real, imag, i, i + span, math.cos(2 * math.pi * twiddle_index / size), math.sin( - 2 * math.pi * twiddle_index / size))
   }
 }
 
