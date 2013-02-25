@@ -153,7 +153,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
   bit_reverse(imag, rev, size);
 }
 
-void fft_row(float *real, float *imag, int size, short *rev, invert)
+void fft_row(float *real, float *imag, int size, short *rev, bool invert)
 {
   // printf("Real 1st row before fft:\n");
   // for (int i = 0; i < size; ++i)
