@@ -239,12 +239,14 @@ void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float r
 {
   float r1 = real[ind1];
   float r2 = real[ind2];
-  real[ind1] = r1 + real_twiddle * r2 - imag_twiddle * imag[ind2];
-  real[ind2] = r1 - (real_twiddle * r2 - imag_twiddle * imag[ind2]);
+  float temp = real_twiddle * r2 - imag_twiddle * imag[ind2];
+  real[ind1] = r1 + temp;
+  real[ind2] = r1 - temp;
 
   float i1 = imag[ind1];
-  imag[ind1] = i1 + imag_twiddle * r2 + imag[ind2] * real_twiddle;
-  imag[ind2] = i1 - (imag_twiddle * r2 + imag[ind2] * real_twiddle);
+  temp = imag_twiddle * r2 + imag[ind2] * real_twiddle;
+  imag[ind1] = i1 + temp;
+  imag[ind2] = i1 - temp;
 }
 void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
 {
@@ -262,12 +264,11 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
 
-  for (int span = 1; span < size; span <<= 1)
+  for (int span = 1; int num_units = size >> 1; span < size; span <<= 1; num_units >>= 1)
   {
-    int num_units = size / (2 * span);
     for (int unit = 0; unit < num_units; ++unit)
     {
-      int two_unit_span = 2 * unit * span;
+      int two_unit_span = unit * (span << 1);
       for (int i = 0; i < span; ++i)
       {
         int twiddle_index = i * num_units;
