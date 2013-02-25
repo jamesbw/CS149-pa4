@@ -52,6 +52,22 @@ void bit_reverse(float *values, short *rev, int size)
   }
 }
 
+void swap_submatrix(float *top_left, int sub_size, int mat_size)
+{
+  int sub_size_half = sub_size >> 1;
+  float *temp = new float[sub_size_half];
+  float *top_right_submatrix = top_left + sub_size_half;
+  float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
+  int size_bytes = sizeof(float) * sub_size_half;
+  for (int row = 0; row < sub_size_half; ++row)
+  {
+    int row_offset = row * mat_size;
+    memcpy(temp, top_right_submatrix + row_offset, size_bytes);
+    memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
+    memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
+  }
+}
+
 void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int left)
 {
   float *top_left = matrix + mat_size * top + left;
@@ -65,17 +81,7 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
     transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left + sub_size_half);
   
     //swap
-    float *temp = new float[sub_size_half];
-    float *top_right_submatrix = top_left + sub_size_half;
-    float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
-    int size_bytes = sizeof(float) * sub_size_half;
-    for (int row = 0; row < sub_size_half; ++row)
-    {
-      int row_offset = row * mat_size;
-      memcpy(temp, top_right_submatrix + row_offset, size_bytes);
-      memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
-      memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
-    }
+    swap_submatrix(top_left, sub_size, mat_size);
   }
   else
   {
@@ -99,6 +105,57 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
 void transpose(float *matrix, int size)
 {
   transpose_submatrix(matrix, size, size, 0, 0);
+}
+
+void transpose_parallel(float *real, float *imag, int size)
+{
+  int half_size = size >> 1;
+  #pragma omp parallel sections
+      {
+      #pragma omp section
+        {
+          transpose_submatrix(real, half_size, size, 0, 0);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(real, half_size, size, half_size, 0);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(real, half_size, size, 0, half_size);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(real, half_size, size, half_size, half_size);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(imag, half_size, size, 0, 0);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(imag, half_size, size, half_size, 0);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(imag, half_size, size, 0, half_size);
+        }
+
+      #pragma omp section
+        {
+          transpose_submatrix(imag, half_size, size, half_size, half_size);
+        }
+
+      }  /* end of sections */
+
+  swap_submatrix(real, size, size);
+  swap_submatrix(imag, size, size);
 }
 
 
@@ -318,8 +375,9 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel FFTX Execution Time: %f ms\n\n", execution);
 
-  transpose(real_image, size);
-  transpose(imag_image, size);
+  // transpose(real_image, size);
+  // transpose(imag_image, size);
+  transpose_parallel(real_image, imag_image, size);
 
   // End timing
   gettimeofday(&tv2,&tz2);
