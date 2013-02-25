@@ -74,7 +74,7 @@ void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float r
   imag[ind1] = i1 + imag[ind2];
   imag[ind2] = imag_twiddle * (r1 - r2) + real_twiddle * (i1 - imag[ind2]);
 }
-void fourier_dit(float *real, float *imag, int size, short *rev, bool invert)
+void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
@@ -88,13 +88,12 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert)
       for (int i = 0; i < span; ++i)
       {
         int twiddle_index = i * num_units;
-        float angle = 2.0*PI*twiddle_index/ size;
+        float real_twiddle = roots_real[twiddle_index];
+        float imag_twiddle = roots_imag[twiddle_index];
         if (invert)
         {
-          angle = -angle;
+          imag_twiddle = -imag_twiddle;
         }
-        float real_twiddle = cos(angle);
-        float imag_twiddle = sin(-angle);
         // if (print)
         // {
         //   printf("%d, %d, %d, %f, %f\n", twiddle_index, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
@@ -153,7 +152,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert)
   bit_reverse(imag, rev, size);
 }
 
-void fft_row(float *real, float *imag, int size, short *rev, bool invert)
+void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
   // printf("Real 1st row before fft:\n");
   // for (int i = 0; i < size; ++i)
@@ -170,7 +169,7 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert)
   #pragma parallel for
   for (int row = 0; row < size; ++row)
   {
-    fourier_dit(real + row*size, imag + row*size, size, rev, invert);
+    fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
   }
   // printf("\n");
   // printf("Real 1st row after fft:\n");
@@ -577,40 +576,51 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   // Start timing
   gettimeofday(&tv1,&tz1);
 
-  float *termsXreal = new float[size_x];
-  float *termsXimag = new float[size_x];
-  float *termsYreal = new float[size_y];
-  float *termsYimag = new float[size_y];
+  // float *termsXreal = new float[size_x];
+  // float *termsXimag = new float[size_x];
+  // float *termsYreal = new float[size_y];
+  // float *termsYimag = new float[size_y];
 
 
-  for(unsigned int n = 0; n < size_x; n++)
-  {
-    float term = -2 * PI * n / size_x;
-    termsXreal[n] = cos(term);
-    termsXimag[n] = sin(term);
-  }
+  // for(unsigned int n = 0; n < size_x; n++)
+  // {
+  //   float term = -2 * PI * n / size_x;
+  //   termsXreal[n] = cos(term);
+  //   termsXimag[n] = sin(term);
+  // }
 
-  for(unsigned int n = 0; n < size_y; n++)
-  {
-    float term = -2 * PI * n / size_y;
-    termsYreal[n] = cos(term);
-    termsYimag[n] = sin(term);
-  }
+  // for(unsigned int n = 0; n < size_y; n++)
+  // {
+  //   float term = -2 * PI * n / size_y;
+  //   termsYreal[n] = cos(term);
+  //   termsYimag[n] = sin(term);
+  // }
+
+  
 
   int size = size_x;
+  float *roots_real = new float[size];
+  float *roots_imag = new float[size];
+  float two_pi_over_size = - 2 * PI / size;
+  for (int i = 0; i < size; ++i)
+  {
+    float term = i * two_pi_over_size;
+    roots_real[i] = cos(term);
+    roots_imag[i] = sin(term);
+  }
   // printf("Size is: %d\n", size);
   short *rev = new short[size/2];
   build_bit_rev_index(rev, size);
-  printf("Rev array is:\n");
-  for (int i = 0; i < size / 2; ++i)
-  {
-    printf("%d, ", rev[i]);
-  }
-  printf("\n\n");
+  // printf("Rev array is:\n");
+  // for (int i = 0; i < size / 2; ++i)
+  // {
+  //   printf("%d, ", rev[i]);
+  // }
+  // printf("\n\n");
 
   // Perform fft with respect to the x direction
   // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
-  fft_row(real_image, imag_image, size, rev, false);
+  fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
