@@ -515,6 +515,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   }
   printf("\n");
 
+  return 0;
 
 
 
