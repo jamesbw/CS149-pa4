@@ -52,22 +52,6 @@ void bit_reverse(float *values, short *rev, int size)
   }
 }
 
-// void swap_submatrix(float *top_left, int sub_size, int mat_size)
-// {
-//   int sub_size_half = sub_size >> 1;
-//   float *temp = new float[sub_size_half];
-//   float *top_right_submatrix = top_left + sub_size_half;
-//   float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
-//   int size_bytes = sizeof(float) * sub_size_half;
-//   for (int row = 0; row < sub_size_half; ++row)
-//   {
-//     int row_offset = row * mat_size;
-//     memcpy(temp, top_right_submatrix + row_offset, size_bytes);
-//     memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
-//     memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
-//   }
-// }
-
 void swap_submatrices(float *submatrix1, float *submatrix2, int sub_size, int mat_size)
 {
   int size_bytes = sizeof(float) * sub_size;
@@ -84,7 +68,7 @@ void swap_submatrices(float *submatrix1, float *submatrix2, int sub_size, int ma
 void transpose_submatrix(float *top_left, int sub_size, int mat_size)
 {
   // float *top_left = matrix + mat_size * top + left;
-  if (sub_size > FLOATS_PER_CACHE_LINE)
+  if (sub_size > FLOATS_PER_CACHE_LINE * 2)
   {
     //transpose sub-matrices
     int sub_size_half = sub_size >> 1;
@@ -94,7 +78,6 @@ void transpose_submatrix(float *top_left, int sub_size, int mat_size)
     transpose_submatrix(top_left + sub_size_half * (mat_size + 1), sub_size_half, mat_size);
   
     //swap
-    // swap_submatrix(top_left, sub_size, mat_size);
     float *top_right_submatrix = top_left + sub_size_half;
     float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
     swap_submatrices(top_right_submatrix, bottom_left_submatrix, sub_size_half, mat_size);
@@ -216,22 +199,6 @@ void transpose_parallel(float *real, float *imag, int size)
         }
 
       }  /* end of sections */
-
-  // #pragma omp sections
-  //     {
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(real + half_size, real + size * half_size, half_size, size);
-  //       }
-
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
-  //       }
-  //     }
-
-  // swap_submatrices(real + half_size, real + size * half_size, half_size, size);
-  // swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
 }
 
 
@@ -327,10 +294,6 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   #pragma omp for
   for (int row = 0; row < size; ++row)
   {
-    if (row == 0)
-    {
-      printf("Thread %d got row 0\n", omp_get_thread_num());
-    }
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
   }
 }
