@@ -76,7 +76,7 @@ void forward_fourier(float *real, float *imag, int size, short *rev, bool print)
       int two_unit_span = 2 * unit * span;
       for (int i = 0; i < span; ++i)
       {
-        int twiddle_index = i * num_units * 2;
+        int twiddle_index = i * num_units;
         float real_twiddle = cos(2.0*PI*twiddle_index/ size);
         float imag_twiddle = sin(-2.0*PI*twiddle_index/ size);
         if (print)
