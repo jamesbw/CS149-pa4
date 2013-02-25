@@ -121,8 +121,8 @@ void forward_fourier_dif(float *real, float *imag, int size, short *rev, bool pr
       }
     }
   }
-  bit_reverse(real, rev, size);
-  bit_reverse(imag, rev, size);
+  // bit_reverse(real, rev, size);
+  // bit_reverse(imag, rev, size);
 }
 
 void fft_row(float *real, float *imag, int size, short *rev)
@@ -481,7 +481,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 {
 
-  int s = 8;
+  int s = 32;
   float *real = new float[s];
   float *imag = new float[s];
   short *r = new short[s/2];
