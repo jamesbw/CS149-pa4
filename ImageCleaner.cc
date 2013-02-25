@@ -173,54 +173,54 @@ void transpose_parallel(float *real, float *imag, int size)
   int quarter_size = half_size >> 1;
   int three_quarter_size = half_size + quarter_size;
 
-  // #pragma omp parallel sections
-  //     {
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(real + half_size, real + half_size * size, quarter_size, size);
-  //       }
+  #pragma omp parallel sections
+      {
+      #pragma omp section
+        {
+          swap_submatrices(real + half_size, real + half_size * size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(real + three_quarter_size, real + three_quarter_size * size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(real + three_quarter_size, real + half_size * size + quarter_size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(real + half_size + quarter_size * size, real + half_size * size + quarter_size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(real + half_size + quarter_size * size, real + three_quarter_size * size + quarter_size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(real + three_quarter_size + quarter_size * size, real + quarter_size + three_quarter_size * size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(real + three_quarter_size + quarter_size * size, real + quarter_size + three_quarter_size * size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(imag + half_size, imag + half_size * size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(imag + half_size, imag + half_size * size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(imag + three_quarter_size, imag + three_quarter_size * size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(imag + three_quarter_size, imag + three_quarter_size * size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(imag + half_size + quarter_size * size, imag + half_size * size + quarter_size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(imag + half_size + quarter_size * size, imag + half_size * size + quarter_size, quarter_size, size);
+        }
 
-  //     #pragma omp section
-  //       {
-  //         swap_submatrices(imag + three_quarter_size + quarter_size * size, imag + quarter_size + three_quarter_size * size, quarter_size, size);
-  //       }
+      #pragma omp section
+        {
+          swap_submatrices(imag + three_quarter_size + quarter_size * size, imag + quarter_size + three_quarter_size * size, quarter_size, size);
+        }
 
-  //     }  /* end of sections */
+      }  /* end of sections */
 
 
 
-  swap_submatrices(real + half_size, real + size * half_size, half_size, size);
-  swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
+  // swap_submatrices(real + half_size, real + size * half_size, half_size, size);
+  // swap_submatrices(imag + half_size, imag + size * half_size, half_size, size);
 }
 
 
