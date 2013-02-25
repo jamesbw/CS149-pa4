@@ -90,8 +90,9 @@ void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int
     }
     for (int row = 0; row < sub_size; ++row)
     {
-      memcpy(top_left + row * mat_size, temp + row * sub_size, sub_size);
+      memcpy(top_left + row * mat_size, temp + row * sub_size, sub_size * sizeof(float));
     }
+    delete[] temp;
   }
 }
 
