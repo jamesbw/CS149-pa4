@@ -9,6 +9,95 @@
 #define CACHE_LINE_SIZE 64
 #define FLOATS_PER_CACHE_LINE 16
 
+void build_bit_rev_index(short *arr, int size)
+{
+  arr[0] = 0;
+  arr[1] = size >> 1;
+  if(size < 8)
+    return;
+  arr[2] = size >> 2;
+  arr[3] = arr[1] + arr[2];
+  for (int k = 3; (1 << k) < size; ++k)
+  {
+    int nk = (1 << k) - 1;
+    int nkminus1 = (1 << (k -1)) - 1;
+    for (int l = 1; l < nkminus1 + 1; ++l)
+    {
+      arr[nk-l] = arr[nk] - arr[l];
+    }
+  }
+}
+
+void bit_reverse(float *values, short *rev, int size)
+{
+  int l = size / 2;
+  float temp;
+  for (int i = 0; i < l; ++i)
+  {
+    short index = rev[i];
+    if (i < index)
+    {
+      temp = values[i];
+      values[i] = values[index];
+      values[index] = temp;
+
+      //rev covers only even indices. Odd pairs are the same but translated by size/2.
+      temp = values[i + l];
+      values[i + l] = values[index+1];
+      values[index+1] = values[i+l];
+    }
+  }
+}
+
+void butterfly_forward(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
+{
+  float r1 = real[ind1];
+  float r2 = real[ind2];
+  real[ind1] = r1 + real_twiddle * r2 - imag_twiddle * imag[ind2];
+  real[ind2] = r1 - (real_twiddle * r2 - imag_twiddle * imag[ind2]);
+
+  float i1 = imag[ind1];
+  imag[ind1] = i1 + imag_twiddle * r2 + imag[ind2] * real_twiddle;
+  imag[ind2] = i1 - (imag_twiddle * r2 + imag[ind2] * real_twiddle);
+}
+void forward_fourier(float *real, float *imag, int size, short *rev)
+{
+  bit_reverse(real, rev, size);
+  bit_reverse(imag, rev, size);
+
+  for (int span = 1; i < size; span <<= 1)
+  {
+    int num_units = size / (2 * span);
+    for (int unit = 0; unit < num_units; ++j)
+    {
+      int two_unit_span = 2 * unit * span;
+      for (int i = 0; i < span; ++i)
+      {
+        int twiddle_index = i * num_units;
+        float real_twiddle = cos(2*PI*twiddle_index/ size);
+        float imag_twiddle = sin(2*PI*twiddle_index/ size);
+        butterfly_forward(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+      }
+    }
+
+    for j in range(0, size/ (2 * span)):
+      for i in range(2*j*span, span + 2*j*span):
+        #e(-2iPI/(size/span)*j)
+        twiddle_index = (i % span) * size/ (2 * span)
+        print twiddle_index, i, i+span
+        do(real, imag, i, i + span, math.cos(2 * math.pi * twiddle_index / size), math.sin( - 2 * math.pi * twiddle_index / size))
+  }
+}
+
+void fft_row(float *real, float *imag, int size, short *rev)
+{
+  #pragma omp parallel for
+  for (int row = 0; row < size; ++row)
+  {
+    forward_fourier(real + row*size, imag + row*size, size, rev);
+  }
+}
+
 void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, float *termsYreal, float *termsYimag)
 {
   // Create some space for storing temporary values
@@ -18,7 +107,7 @@ void cpu_fftx(float *real_image, float *imag_image, int size_x, int size_y, floa
   // float *fft_real = new float[size_y];
   // float *fft_imag = new float[size_y];
 
-#pragma omp parallel for schedule(dynamic, 4)
+#pragma omp parallel for
   for(unsigned int x = 0; x < size_x; x++)
   {
     // Create some space for storing temporary values
@@ -357,9 +446,14 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     termsYimag[n] = sin(term);
   }
 
+  int size = size_x;
+  short *rev = new short[size/2];
+  build_bit_rev_index(rev, size);
+
 
   // Perform fft with respect to the x direction
-  cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  // cpu_fftx(real_image, imag_image, size_x, size_y, termsYreal, termsYimag);
+  fft_row(real_image, imag_image, size, rev);
 
   // End timing
   gettimeofday(&tv2,&tz2);
