@@ -55,26 +55,43 @@ void bit_reverse(float *values, short *rev, int size)
 void transpose_submatrix(float *matrix, int sub_size, int mat_size, int top, int left)
 {
   int sub_size_half = sub_size >> 1;
-  if (sub_size > 1)
+  float *top_left = matrix + mat_size * top + left;
+  if (sub_size > FLOATS_PER_CACHE_LINE)
   {
     //transpose sub-matrices
     transpose_submatrix(matrix, sub_size_half, mat_size, top, left);
     transpose_submatrix(matrix, sub_size_half, mat_size, top, left + sub_size_half);
     transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left);
     transpose_submatrix(matrix, sub_size_half, mat_size, top + sub_size_half, left + sub_size_half);
+  
+    //swap
+    float *temp = new float[sub_size_half];
+    float *top_right_submatrix = top_left + sub_size_half;
+    float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
+    int size_bytes = sizeof(float) * sub_size_half;
+    for (int row = 0; row < sub_size_half; ++row)
+    {
+      int row_offset = row * mat_size;
+      memcpy(temp, top_right_submatrix + row_offset, size_bytes);
+      memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
+      memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
+    }
   }
-  //swap
-  float *temp = new float[sub_size_half];
-  float *top_left = matrix + mat_size * top + left;
-  float *top_right_submatrix = top_left + sub_size_half;
-  float *bottom_left_submatrix = top_left + mat_size * sub_size_half;
-  int size_bytes = sizeof(float) * sub_size_half;
-  for (int row = 0; row < sub_size_half; ++row)
+  else
   {
-    int row_offset = row * mat_size;
-    memcpy(temp, top_right_submatrix + row_offset, size_bytes);
-    memcpy(top_right_submatrix + row_offset, bottom_left_submatrix + mat_size * row, size_bytes);
-    memcpy(bottom_left_submatrix + row_offset, temp, size_bytes);
+    //transpose manually
+    float *temp = new float[sub_size * sub_size];
+    for (int row = 0; row < count; ++row)
+    {
+      for (int col = 0; col < count; ++col)
+      {
+        temp[row*sub_size + col] = top_left[col + row * mat_size];
+      }
+    }
+    for (int row = 0; row < count; ++row)
+    {
+      memcpy(top_left + row * mat_size, temp + row * sub_size, sub_size);
+    }
   }
 }
 
