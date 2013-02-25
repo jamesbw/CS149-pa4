@@ -295,10 +295,24 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel FFTX Execution Time: %f ms\n\n", execution);
 
+  transpose(real_image, size);
+  transpose(imag_image, size);
+
+  // End timing
+  gettimeofday(&tv2,&tz2);
+  // Compute the time difference in micro-seconds
+  float execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
+  // Convert to milli-seconds
+  execution /= 1000;
+  // Print some output
+  printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
+  printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
 
 
   // Perform fft with respect to the y direction
-  fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
+  // fft_col(real_image, imag_image, size, rev, false, roots_real, roots_imag);
+  fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
+
 
   // End timing
   gettimeofday(&tv2,&tz2);
@@ -338,9 +352,22 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
   printf("  Optimized Kernel IFFTX Execution Time: %f ms\n\n", execution);
 
+  transpose(real_image, size);
+  transpose(imag_image, size);
+
+  // End timing
+  gettimeofday(&tv2,&tz2);
+  // Compute the time difference in micro-seconds
+  float execution = ((tv2.tv_sec-tv1.tv_sec)*1000000+(tv2.tv_usec-tv1.tv_usec));
+  // Convert to milli-seconds
+  execution /= 1000;
+  // Print some output
+  printf("OPTIMIZED IMPLEMENTATION STATISTICS:\n");
+  printf("  Optimized Transpose Execution Time: %f ms\n\n", execution);
 
   // Perform an inverse fft with respect to the y direction
-  fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
+  // fft_col(real_image, imag_image, size, rev, true, roots_real, roots_imag);
+  fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
   // End timing
   gettimeofday(&tv2,&tz2);
