@@ -383,7 +383,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   short *rev = new short[half_size];
   build_bit_rev_index(rev, size);
 
-  // execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
+  execution = stats("Setup", &tv1, &tz1, &tv2, &tz2);
 
   #pragma omp parallel
   {
@@ -393,48 +393,48 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // Perform fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    }
 
     transpose_parallel(real_image, imag_image, size);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    }
 
     // Perform fft with respect to the y direction
     fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
+    }
 
     // Filter the transformed image
     cpu_filter(real_image, imag_image, size_x, size_y);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
+    }
 
     // Perform an inverse fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
+    }
 
     transpose_parallel(real_image, imag_image, size);
 
-    // #pragma omp single
-    // { 
-    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    // }
+    #pragma omp single
+    { 
+      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    }
 
 
     // Perform an inverse fft with respect to the y direction
