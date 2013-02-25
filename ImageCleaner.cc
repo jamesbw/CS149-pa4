@@ -76,7 +76,7 @@ void forward_fourier(float *real, float *imag, int size, short *rev)
       {
         int twiddle_index = i * num_units;
         float real_twiddle = cos(2*PI*twiddle_index/ size);
-        float imag_twiddle = sin(2*PI*twiddle_index/ size);
+        float imag_twiddle = sin(-2*PI*twiddle_index/ size);
         butterfly_forward(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
       }
     }
