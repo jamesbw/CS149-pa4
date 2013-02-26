@@ -291,7 +291,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp for schedule(dynamic, 1)
+  #pragma omp for schedule(static, 1)
   for (int row = 0; row < size; ++row)
   {
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
@@ -328,7 +328,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   int eightY = size_y/8;
   int eight7Y = size_y - eightY;
 
-  #pragma omp for schedule(static, eightX)
+  #pragma omp for schedule(static, 1)
   for(unsigned int x = 0; x < size_x; x++)
   {
     if (x < eightX || x >= eight7X)
