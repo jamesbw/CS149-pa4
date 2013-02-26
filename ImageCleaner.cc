@@ -291,7 +291,7 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
-  #pragma omp for
+  #pragma omp for schedule(dynamic, 1)
   for (int row = 0; row < size; ++row)
   {
     fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
