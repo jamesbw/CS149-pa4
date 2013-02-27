@@ -281,7 +281,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
       int half_span = span >> 1;
       //i = 0
       butterfly_trivial_zero(real, imag, two_unit_span, two_unit_span + span);
-      for (int i = 1, twiddle_index = 0; i < half_span; ++i, twiddle_index += num_units)
+      for (int i = 1, twiddle_index = num_units; i < half_span; ++i, twiddle_index += num_units)
       {
         float real_twiddle = roots_real[twiddle_index];
         float imag_twiddle = invert? -roots_imag[twiddle_index] : roots_imag[twiddle_index];
