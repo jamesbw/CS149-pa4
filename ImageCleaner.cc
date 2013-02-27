@@ -242,7 +242,7 @@ void butterfly_trivial_minus_j(float *real, float *imag, int ind1, int ind2, boo
   if (invert)
   {
     real[ind1] = r1 - i2;
-    real[ind2] = r1 - i2;
+    real[ind2] = r1 + i2;
     imag[ind1] = i1 + r2;
     imag[ind2] = i1 - r2;
   }
