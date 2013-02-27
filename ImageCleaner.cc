@@ -240,9 +240,9 @@ void butterfly_trivial_minus_j(float *real, float *imag, int ind1, int ind2, boo
 {
   float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
   real[ind1] = r1 + r2;
-  real[ind2] = invert ? i1 - i2 : i2 - i1;
+  real[ind2] = invert ? i2 - i1 : i1 - i2;
   imag[ind1] = i1 + i2;
-  imag[ind2] = invert ? r2 - r1 : r1 - r2;
+  imag[ind2] = invert ? r1 - r2 : r2 - r1;
 }
 
 void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
