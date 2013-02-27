@@ -305,6 +305,16 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
         // }
         // else
         // {
+        if (twiddle_index == 0)
+        {
+          butterfly_trivial_zero(real, imag, two_unit_span, two_unit_span + span);
+        }
+        else if (twiddle_index == size >> 2)
+        {
+          butterfly_trivial_minus_j(real, imag, i + two_unit_span, i + two_unit_span + span, invert);
+        }
+        else
+        {
           float real_twiddle = roots_real[twiddle_index];
           float imag_twiddle = roots_imag[twiddle_index];
           if (invert)
@@ -312,7 +322,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
             imag_twiddle = -imag_twiddle;
           }
           butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
-        // }
+        }
       }
     }
   }
