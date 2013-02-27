@@ -275,6 +275,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
             //   imag_twiddle = -imag_twiddle;
             // }
             // butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+            printf("Span: %d, i: %d, twiddle_index: %d\n", span, i, twiddle_index);
             butterfly_trivial_minus_j(real, imag, i + two_unit_span, i + two_unit_span+ 2, invert);
           }
         }
