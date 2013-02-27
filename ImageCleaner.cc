@@ -261,13 +261,13 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
   bit_reverse(imag, rev, size);
 
   //span = 1; num_units = size / 2; 
-  for (int unit = 0, two_unit_span = 0; unit < (size >> 1); ++unit, two_unit_span += (span << 1))
+  for (int unit = 0, two_unit_span = 0; unit < (size >> 1); ++unit, two_unit_span += 2)
   {
-    butterfly_trivial_zero(real, imag, i + two_unit_span, i + two_unit_span+ 1);
+    butterfly_trivial_zero(real, imag, two_unit_span, two_unit_span+ 1);
   }
 
   //span = 2: num_units = size / 4;
-  for (int unit = 0, two_unit_span = 0; unit < (size >> 2); ++unit, two_unit_span += (span << 1))
+  for (int unit = 0, two_unit_span = 0; unit < (size >> 2); ++unit, two_unit_span += 4)
   {
     butterfly_trivial_zero(real, imag, two_unit_span,  two_unit_span + 2);
     butterfly_trivial_minus_j(real, imag, 1 + two_unit_span, two_unit_span + 3, invert);
