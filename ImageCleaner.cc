@@ -226,6 +226,25 @@ void butterfly_forward_dif(float *real, float *imag, int ind1, int ind2, float r
   imag[ind1] = i1 + imag[ind2];
   imag[ind2] = imag_twiddle * (r1 - r2) + real_twiddle * (i1 - imag[ind2]);
 }
+
+void butterfly_trivial_zero(float *real, float *imag, int ind1, int ind2)
+{
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  real[ind1] = r1 + r2;
+  real[ind2] = r1 - r2;
+  imag[ind1] = i1 + i2;
+  imag[ind2] = i1 - i2;
+}
+
+void butterfly_trivial_minus_j(float *real, float *imag, int ind1, int ind2, bool invert)
+{
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  real[ind1] = r1 + r2;
+  real[ind2] = invert ? i2 - i1 : i1 - i2;
+  imag[ind1] = i1 + i2;
+  imag[ind2] = invert ? r1 - r2 : r2 - r1;
+}
+
 void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
 {
   bit_reverse(real, rev, size);
@@ -237,13 +256,31 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
     {
       for (int i = 0, twiddle_index = 0; i < span; ++i, twiddle_index += num_units)
       {
-        float real_twiddle = roots_real[twiddle_index];
-        float imag_twiddle = roots_imag[twiddle_index];
-        if (invert)
+        if (span == 1)
         {
-          imag_twiddle = -imag_twiddle;
+          butterfly_trivial_zero(real, imag, i + two_unit_span, i + two_unit_span+ 1);
         }
-        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        else if (span == 2)
+        {
+          if (i == 0)
+          {
+            butterfly_trivial_zero(real, imag, i + two_unit_span, i + two_unit_span+ 2);
+          }
+          else
+          {
+            butterfly_trivial_minus_j(real, imag, i + two_unit_span, i + two_unit_span+ 2, invert);
+          }
+        }
+        else
+        {
+          float real_twiddle = roots_real[twiddle_index];
+          float imag_twiddle = roots_imag[twiddle_index];
+          if (invert)
+          {
+            imag_twiddle = -imag_twiddle;
+          }
+          butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        }
       }
     }
   }
