@@ -274,7 +274,7 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
   }
 
 
-  for (int span = 3, num_units = (size >> 3); span < size; span <<= 1, num_units >>= 1)
+  for (int span = 4, num_units = (size >> 3); span < size; span <<= 1, num_units >>= 1)
   {
     for (int unit = 0, two_unit_span = 0; unit < num_units; ++unit, two_unit_span += (span << 1))
     {
