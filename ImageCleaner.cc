@@ -265,7 +265,7 @@ void butterfly_trivial_minus_j(float *real, float *imag, int ind1, int ind2, boo
 void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
   bit_reverse(real, rev, size);
-  bit_reverse(imag, rev, size);
+  // bit_reverse(imag, rev, size);
 
   //span = 1; num_units = size / 2; 
   for (int unit = 0, two_unit_span = 0; unit < (size >> 1); ++unit, two_unit_span += 2)
