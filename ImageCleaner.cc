@@ -539,6 +539,7 @@ void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, float *r
       //   real[ row * size + i] = 0.f;
       //   imag[ row * size + i] = 0.f;
       // }
+      fourier_dif_no_reverse(real + row*size, imag + row*size, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
       bit_reversed_filter(real + row*size, imag + row*size, rev, size);
       fourier_dit_no_reverse(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
     }
@@ -617,7 +618,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
     // Perform fft with respect to the y direction
     // fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-    fft_row_dif_no_reverse(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    // fft_row_dif_no_reverse(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
