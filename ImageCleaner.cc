@@ -508,7 +508,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Perform an inverse fft with respect to the x direction
-    fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    // fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
