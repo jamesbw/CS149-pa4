@@ -403,7 +403,7 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   }
 }
 
-void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
+void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
   int eighth = size/8;
   int seven_eighths = size - eighth;
@@ -415,7 +415,7 @@ void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, bool inv
     {
       memset(real + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
       memset(imag + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
-      fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+      fourier_dit(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
     }
     else
     {
@@ -500,7 +500,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
     // Filter the transformed image
     // cpu_filter(real_image, imag_image, size_x, size_y);
-    cpu_filter_and_fft(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    cpu_filter_and_fft(real_image, imag_image, size, rev, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
