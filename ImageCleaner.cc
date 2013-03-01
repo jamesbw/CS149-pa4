@@ -357,28 +357,28 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   }
 }
 
-void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
-{
-  #pragma omp for
-  for (int col = 0; col < size; ++col)
-  {
-    float *real_col = new float[size];
-    float *imag_col = new float[size];
-    for(unsigned int row = 0; row < size; row++)
-    {
-      real_col[row] = real[row*size + col];
-      imag_col[row] = imag[row*size + col];
-    }
+// void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
+// {
+//   #pragma omp for
+//   for (int col = 0; col < size; ++col)
+//   {
+//     float *real_col = new float[size];
+//     float *imag_col = new float[size];
+//     for(unsigned int row = 0; row < size; row++)
+//     {
+//       real_col[row] = real[row*size + col];
+//       imag_col[row] = imag[row*size + col];
+//     }
 
-    fourier_dit(real_col, imag_col, size, rev, invert, roots_real, roots_imag);
+//     fourier_dit(real_col, imag_col, size, rev, invert, roots_real, roots_imag);
 
-    for(unsigned int row = 0; row < size; row++)
-    {
-      real[row*size + col] = real_col[row];
-      imag[row*size + col] = imag_col[row];
-    }
-  }
-}
+//     for(unsigned int row = 0; row < size; row++)
+//     {
+//       real[row*size + col] = real_col[row];
+//       imag[row*size + col] = imag_col[row];
+//     }
+//   }
+// }
 
 void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
 {
