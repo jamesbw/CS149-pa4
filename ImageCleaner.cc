@@ -8,6 +8,8 @@
 #define PI	3.14159265
 #define CACHE_LINE_SIZE 64
 #define FLOATS_PER_CACHE_LINE 16
+#define ONE_OVER_SQRT_2 0.70710678
+#define SQRT_2 1.41421356
 
 //from http://www.math.fsu.edu/~gallivan/courses/NLA1/bitreversal.pdf
 void build_bit_rev_index(short *arr, int size)
@@ -226,25 +228,6 @@ void transpose_parallel(float *real, float *imag, int size)
 }
 
 
-void butterfly_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float real_minus_imag_twiddle)
-{
-  // x1 = x1 + twiddle * x2
-  // x2 = x1 - twiddle * x2
-
-  float r1 = real[ind1];
-  float r2 = real[ind2];
-  float z = real_twiddle * (r2 - imag[ind2]);
-  // float temp = real_twiddle * r2 - imag_twiddle * imag[ind2];
-  float temp = real_minus_imag_twiddle * imag[ind2] + z;
-  real[ind1] = r1 + temp;
-  real[ind2] = r1 - temp;
-
-  float i1 = imag[ind1];
-  // temp = imag_twiddle * r2 + imag[ind2] * real_twiddle;
-  temp = real_plus_imag_twiddle * r2 - z;
-  imag[ind1] = i1 + temp;
-  imag[ind2] = i1 - temp;
-}
 void butterfly_dif(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float real_minus_imag_twiddle)
 {
   // x1 = x1 + x2
@@ -291,6 +274,22 @@ void butterfly_trivial_minus_j_dif(float *real, float *imag, int ind1, int ind2,
   }
 }
 
+void butterfly_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float real_minus_imag_twiddle)
+{
+  // x1 = x1 + twiddle * x2
+  // x2 = x1 - twiddle * x2
+
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  float z = real_twiddle * (r2 - i2);
+  float temp = real_minus_imag_twiddle * i2 + z;
+  real[ind1] = r1 + temp;
+  real[ind2] = r1 - temp;
+
+  temp = real_plus_imag_twiddle * r2 - z;
+  imag[ind1] = i1 + temp;
+  imag[ind2] = i1 - temp;
+}
+
 void butterfly_trivial_zero_dit(float *real, float *imag, int ind1, int ind2)
 {
   float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
@@ -319,6 +318,74 @@ void butterfly_trivial_minus_j_dit(float *real, float *imag, int ind1, int ind2,
   }
 }
 
+// (C+iS)(X+iY)=CX−SY+i(CY+SX)
+// Z=C(X−Y)
+// D=C+S
+// E=C−S
+// CX−SY=EY+Z
+// CY+SX=DX−Z
+
+void butterfly_trivial_one_minus_j_dit(float *real, float *imag, int ind1, int ind2, bool invert)
+{
+  //twiddle = (1-j)/sqrt(2)
+
+  // x1 = x1 + twiddle * x2
+  // x2 = x1 - twiddle * x2
+
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  float z = ONE_OVER_SQRT_2 * (r2 - i2);
+  float temp;
+
+  if (invert)
+  {
+    real[ind1] = r1 + z;
+    real[ind2] = r1 - z;
+
+    temp = SQRT_2 * r2 - z;
+    imag[ind1] = i1 + temp;
+    imag[ind2] = i1 - temp;
+  }
+  else
+  {
+    temp = SQRT_2 * i2 + z;
+    real[ind1] = r1 + temp;
+    real[ind2] = r1 - temp;
+    imag[ind1] = i1 - z;
+    imag[ind2] = i1 + z;
+  }
+}
+
+void butterfly_trivial_minus_one_minus_j_dit(float *real, float *imag, int ind1, int ind2, bool invert)
+{
+  //twiddle = -(1+j)/sqrt(2)
+
+  // x1 = x1 + twiddle * x2
+  // x2 = x1 - twiddle * x2
+
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  float z = ONE_OVER_SQRT_2 * (i2 - r2);
+  float temp;
+
+  if (invert)
+  {
+    temp = z - SQRT_2 * i2;
+    real[ind1] = r1 + temp;
+    real[ind2] = r1 - temp;
+
+    imag[ind1] = i1 - z;
+    imag[ind2] = i1 + z;
+  }
+  else
+  {
+    real[ind1] = r1 + z;
+    real[ind2] = r1 - z;
+
+    temp = - SQRT_2 * r2 - z;
+    imag[ind1] = i1 + temp;
+    imag[ind2] = i1 - temp;
+  }
+}
+
 
 void fourier_dit_no_reverse(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
@@ -335,12 +402,22 @@ void fourier_dit_no_reverse(float *real, float *imag, int size, short *rev, bool
     butterfly_trivial_minus_j_dit(real, imag, 1 + two_unit_span, two_unit_span + 3, invert);
   }
 
+  //span = 4: num_units = size / 8;
+  for (int unit = 0, two_unit_span = 0; unit < (size >> 3); ++unit, two_unit_span += 8)
+  {
+    butterfly_trivial_zero_dit(real, imag, two_unit_span,  two_unit_span + 4);
+    butterfly_trivial_one_minus_j_dit(real, imag, 1 + two_unit_span,  1 + two_unit_span + 4, invert);
+    butterfly_trivial_minus_j_dit(real, imag, 2 + two_unit_span, 2 + two_unit_span + 4, invert);
+    butterfly_trivial_minus_one_minus_j_dit(real, imag, 3 + two_unit_span, 3 + two_unit_span + 4, invert);
+  }
 
-  for (int span = 4, num_units = (size >> 3); span < size; span <<= 1, num_units >>= 1)
+
+  for (int span = 8, num_units = (size >> 4); span < size; span <<= 1, num_units >>= 1)
   {
     for (int unit = 0, two_unit_span = 0; unit < num_units; ++unit, two_unit_span += (span << 1))
     {
       int half_span = span >> 1;
+      int quarter_span = span >> 2;
       //i = 0
       butterfly_trivial_zero_dit(real, imag, two_unit_span, two_unit_span + span);
       for (int i = 1, twiddle_index = num_units; i < half_span; ++i, twiddle_index += num_units)
