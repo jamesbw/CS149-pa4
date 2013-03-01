@@ -712,14 +712,14 @@ void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, float *r
   {
     if (row < eighth || row >= seven_eighths)
     {
-      // fourier_dit(real + row*size, imag + row*size, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-      // memset(real + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
-      // memset(imag + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
-      // fourier_dit(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+      fourier_dit(real + row*size, imag + row*size, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+      memset(real + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
+      memset(imag + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
+      fourier_dit(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
-      fourier_dif_no_reverse(real + row*size, imag + row*size, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-      bit_reversed_filter(real + row*size, imag + row*size, rev, size);
-      fourier_dit_no_reverse(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+      // fourier_dif_no_reverse(real + row*size, imag + row*size, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+      // bit_reversed_filter(real + row*size, imag + row*size, rev, size);
+      // fourier_dit_no_reverse(real + row*size, imag + row*size, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
     }
     else
     {
