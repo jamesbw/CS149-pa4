@@ -723,70 +723,6 @@ void fft_row(float *real, float *imag, int size, short *rev, bool invert, float 
   }
 }
 
-// void fft_row_dif_no_reverse(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
-// {
-//   #pragma omp for schedule(static, 4)
-//   for (int row = 0; row < size; ++row)
-//   {
-//     fourier_dif_no_reverse(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-//   }
-// }
-
-// void fft_row_dit_no_reverse(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
-// {
-//   #pragma omp for schedule(static, 4)
-//   for (int row = 0; row < size; ++row)
-//   {
-//     fourier_dit_no_reverse(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-//   }
-// }
-
-
-// void fft_col(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
-// {
-//   #pragma omp for
-//   for (int col = 0; col < size; ++col)
-//   {
-//     float *real_col = new float[size];
-//     float *imag_col = new float[size];
-//     for(unsigned int row = 0; row < size; row++)
-//     {
-//       real_col[row] = real[row*size + col];
-//       imag_col[row] = imag[row*size + col];
-//     }
-
-//     fourier_dit(real_col, imag_col, size, rev, invert, roots_real, roots_imag);
-
-//     for(unsigned int row = 0; row < size; row++)
-//     {
-//       real[row*size + col] = real_col[row];
-//       imag[row*size + col] = imag_col[row];
-//     }
-//   }
-// }
-
-void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
-{
-  int eightX = size_x/8;
-  int eight7X = size_x - eightX;
-  int eightY = size_y/8;
-  int eight7Y = size_y - eightY;
-
-  #pragma omp for schedule(static, eightX)
-  for(unsigned int x = 0; x < size_x; x++)
-  {
-    if (x < eightX || x >= eight7X)
-    {
-      memset(real_image + x*size_x + eightY, 0, (eight7Y - eightY) * sizeof(float));
-      memset(imag_image + x*size_x + eightY, 0, (eight7Y - eightY) * sizeof(float));
-    }
-    else
-    {
-      memset(real_image + x*size_x, 0, size_x * sizeof(float));
-      memset(imag_image + x*size_x, 0, size_x * sizeof(float));
-    }
-  }
-}
 
 void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
@@ -868,62 +804,45 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     // Perform fft with respect to the x direction
     fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
-    #pragma omp single
-    { 
-      execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("FFTX", &tv1, &tz1, &tv2, &tz2);
+    // }
 
     transpose_parallel(real_image, imag_image, size);
 
-    #pragma omp single
-    { 
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    // }
 
-    // Perform fft with respect to the y direction
-    // fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-    // fft_row_dif_no_reverse(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-
-    #pragma omp single
-    { 
-      execution = stats("FFTY", &tv1, &tz1, &tv2, &tz2);
-    }
-
-    // Filter the transformed image
-    // cpu_filter(real_image, imag_image, size_x, size_y);
+    // Filter the transformed image, performing ffts and iffts on the columns that will not be filtered out
     cpu_filter_and_fft(real_image, imag_image, size, rev, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
-    #pragma omp single
-    { 
-      execution = stats("Filter", &tv1, &tz1, &tv2, &tz2);
-    }
-
-    // Perform an inverse fft with respect to the x direction
-    // fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-
-    #pragma omp single
-    { 
-      execution = stats("IFFTY", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Columns + Filter + inverse columns", &tv1, &tz1, &tv2, &tz2);
+    // }
 
     transpose_parallel(real_image, imag_image, size);
 
-    #pragma omp single
-    { 
-      execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("Transpose", &tv1, &tz1, &tv2, &tz2);
+    // }
 
 
     // Perform an inverse fft with respect to the y direction
     fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
-    #pragma omp single
-    { 
-      execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
-    }
+    // #pragma omp single
+    // { 
+    //   execution = stats("IFFTX", &tv1, &tz1, &tv2, &tz2);
+    // }
 
   }
 
+  execution = stats("Overall", &tv1, &tz1, &tv2, &tz2);
 
   delete[] rev;
   delete[] roots_real;
