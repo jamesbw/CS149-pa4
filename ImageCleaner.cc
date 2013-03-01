@@ -408,7 +408,7 @@ void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, float *r
   int eighth = size/8;
   int seven_eighths = size - eighth;
 
-  #pragma omp for schedule(static, eighth)
+  #pragma omp for
   for(unsigned int row = 0; row < size; row++)
   {
     if (row < eighth || row >= seven_eighths)
