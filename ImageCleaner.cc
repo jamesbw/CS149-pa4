@@ -209,7 +209,7 @@ void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float r
   float r2 = real[ind2];
   float z = real_twiddle * (r2 - imag[ind2]);
   // float temp = real_twiddle * r2 - imag_twiddle * imag[ind2];
-  float temp = real_minus_imag_twiddle * i2 + z;
+  float temp = real_minus_imag_twiddle * imag[ind2] + z;
   real[ind1] = r1 + temp;
   real[ind2] = r1 - temp;
 
