@@ -44,7 +44,6 @@ void bit_reversed_filter(float *real_values, float *imag_values, short *rev, int
       imag_values[i] = 0.f;
     }
 
-    }
     short index_plus_one = index + 1;
     if (index_plus_one >= eighth && index_plus_one < seven_eighths)
     {
