@@ -590,8 +590,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Perform fft with respect to the y direction
-    // fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
-    fft_row_dif_no_reverse(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    // fft_row_dif_no_reverse(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
@@ -599,8 +599,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Filter the transformed image
-    // cpu_filter(real_image, imag_image, size_x, size_y);
-    cpu_filter_and_fft(real_image, imag_image, size, rev, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    cpu_filter(real_image, imag_image, size_x, size_y);
+    // cpu_filter_and_fft(real_image, imag_image, size, rev, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
