@@ -403,6 +403,28 @@ void cpu_filter(float *real_image, float *imag_image, int size_x, int size_y)
   }
 }
 
+void cpu_filter_and_fft(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
+{
+  int eighth = size/8;
+  int seven_eighths = size - eighth;
+
+  #pragma omp for schedule(static, eighth)
+  for(unsigned int row = 0; row < size; row++)
+  {
+    if (row < eighth || row >= seven_eighths)
+    {
+      memset(real + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
+      memset(imag + row*size + eighth, 0, (seven_eighths - eighth) * sizeof(float));
+      fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    }
+    else
+    {
+      memset(real + row*size, 0, size * sizeof(float));
+      memset(imag + row*size, 0, size * sizeof(float));
+    }
+  }
+}
+
 float stats(char *msg,struct timeval *tv1, struct timezone *tz1, struct timeval *tv2, struct timezone *tz2)
 {
   gettimeofday(tv2,tz2);
@@ -477,7 +499,8 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Filter the transformed image
-    cpu_filter(real_image, imag_image, size_x, size_y);
+    // cpu_filter(real_image, imag_image, size_x, size_y);
+    cpu_filter_and_fft(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
