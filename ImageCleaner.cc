@@ -439,7 +439,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   {
     float term = i * two_pi_over_size;
     roots_real[i] = cos(term);
-    // roots_imag[i] = sin(term);
+    roots_imag[i] = sin(term);
     roots_real_plus_imag[i] = roots_real[i] + roots_imag[i];
     roots_real_minus_imag[i] = roots_real[i] - roots_imag[i];
   }
