@@ -265,6 +265,32 @@ void butterfly_dif(float *real, float *imag, int ind1, int ind2, float real_twid
   imag[ind2] = real_plus_imag_twiddle * (real_diff) - z;
 }
 
+void butterfly_trivial_zero_dif(float *real, float *imag, int ind1, int ind2)
+{
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  real[ind1] = r1 + r2;
+  real[ind2] = r1 - r2;
+  imag[ind1] = i1 + i2;
+  imag[ind2] = i1 - i2;
+}
+
+void butterfly_trivial_minus_j_dif(float *real, float *imag, int ind1, int ind2, bool invert)
+{
+  float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
+  real[ind1] = r1 + r2;
+  imag[ind1] = i1 + i2;
+  if (invert)
+  {
+    real[ind2] = i2 - i1;
+    imag[ind2] = r1 - r2;
+  }
+  else
+  {
+    real[ind2] = i1 - i2;
+    imag[ind2] = r2 - r1;
+  }
+}
+
 void butterfly_trivial_zero_dit(float *real, float *imag, int ind1, int ind2)
 {
   float r1 = real[ind1], r2 = real[ind2], i1 = imag[ind1], i2 = imag[ind2];
@@ -357,51 +383,51 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fourier_dif_no_reverse(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
-  for (int span = size >> 1, num_units = 1; span > 0; span >>= 1, num_units <<= 1)
+  for (int span = size >> 1, num_units = 1; span > 2; span >>= 1, num_units <<= 1)
   {
     for (int unit = 0, two_unit_span = 0; unit < num_units; ++unit, two_unit_span += (span << 1))
     {
-      for (int i = 0, twiddle_index = 0; i < span; ++i, twiddle_index += num_units)
+      // for (int i = 0, twiddle_index = 0; i < span; ++i, twiddle_index += num_units)
+      // {
+      //   float real_twiddle = roots_real[twiddle_index];
+      //   float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
+      //   float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
+      //   butterfly_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
+      // }
+      int half_span = span >> 1;
+      //i = 0
+      butterfly_trivial_zero_dif(real, imag, two_unit_span, two_unit_span + span);
+      for (int i = 1, twiddle_index = num_units; i < half_span; ++i, twiddle_index += num_units)
       {
         float real_twiddle = roots_real[twiddle_index];
         float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
         float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
         butterfly_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
       }
-      // int half_span = span >> 1;
-      // //i = 0
-      // butterfly_trivial_zero_dif(real, imag, two_unit_span, two_unit_span + span);
-      // for (int i = 1, twiddle_index = num_units; i < half_span; ++i, twiddle_index += num_units)
-      // {
-      //   float real_twiddle = roots_real[twiddle_index];
-      //   float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
-      //   float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
-      //   butterfly_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
-      // }
-      // // i = halfspan
-      // butterfly_trivial_minus_j_dif(real, imag, half_span + two_unit_span, half_span + two_unit_span + span, invert);
-      // for (int i = half_span + 1, twiddle_index = (half_span + 1) * num_units; i < span; ++i, twiddle_index += num_units)
-      // {
-      //   float real_twiddle = roots_real[twiddle_index];
-      //   float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
-      //   float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
-      //   butterfly_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
-      // }
+      // i = halfspan
+      butterfly_trivial_minus_j_dif(real, imag, half_span + two_unit_span, half_span + two_unit_span + span, invert);
+      for (int i = half_span + 1, twiddle_index = (half_span + 1) * num_units; i < span; ++i, twiddle_index += num_units)
+      {
+        float real_twiddle = roots_real[twiddle_index];
+        float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
+        float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
+        butterfly_dif(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
+      }
     }
   }
 
-  // //span = 2: num_units = size / 4;
-  // for (int unit = 0, two_unit_span = 0; unit < (size >> 2); ++unit, two_unit_span += 4)
-  // {
-  //   butterfly_trivial_zero_dif(real, imag, two_unit_span,  two_unit_span + 2);
-  //   butterfly_trivial_minus_j_dif(real, imag, 1 + two_unit_span, two_unit_span + 3, invert);
-  // }
+  //span = 2: num_units = size / 4;
+  for (int unit = 0, two_unit_span = 0; unit < (size >> 2); ++unit, two_unit_span += 4)
+  {
+    butterfly_trivial_zero_dif(real, imag, two_unit_span,  two_unit_span + 2);
+    butterfly_trivial_minus_j_dif(real, imag, 1 + two_unit_span, two_unit_span + 3, invert);
+  }
 
-  // //span = 1; num_units = size / 2; 
-  // for (int unit = 0, two_unit_span = 0; unit < (size >> 1); ++unit, two_unit_span += 2)
-  // {
-  //   butterfly_trivial_zero_dif(real, imag, two_unit_span, two_unit_span+ 1);
-  // }
+  //span = 1; num_units = size / 2; 
+  for (int unit = 0, two_unit_span = 0; unit < (size >> 1); ++unit, two_unit_span += 2)
+  {
+    butterfly_trivial_zero_dif(real, imag, two_unit_span, two_unit_span+ 1);
+  }
 
 
   if (invert)
