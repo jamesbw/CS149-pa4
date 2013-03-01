@@ -630,10 +630,10 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
 
 void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
-  #pragma omp for schedule(dynamic, 4)
+  #pragma omp for schedule(static, 4)
   for (int row = 0; row < size; ++row)
   {
-    fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
+    fourier_dif(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
   }
 }
 
