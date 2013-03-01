@@ -9,6 +9,7 @@
 #define CACHE_LINE_SIZE 64
 #define FLOATS_PER_CACHE_LINE 16
 
+//from http://www.math.fsu.edu/~gallivan/courses/NLA1/bitreversal.pdf
 void build_bit_rev_index(short *arr, int size)
 {
   arr[0] = 0;
@@ -202,16 +203,22 @@ void transpose_parallel(float *real, float *imag, int size)
 }
 
 
-void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float imag_twiddle)
+void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float float real_minus_imag_twiddle)
 {
   float r1 = real[ind1];
   float r2 = real[ind2];
-  float temp = real_twiddle * r2 - imag_twiddle * imag[ind2];
+  float z = real_twiddle * (r2 - imag[ind2]);
+  // float temp = real_twiddle * r2 - imag_twiddle * imag[ind2];
+  float temp = real_minus_imag_twiddle * i2 + z;
   real[ind1] = r1 + temp;
   real[ind2] = r1 - temp;
 
+  // x1 + twiddle * x2
+  // x1 - twiddle * x2
+
   float i1 = imag[ind1];
-  temp = imag_twiddle * r2 + imag[ind2] * real_twiddle;
+  // temp = imag_twiddle * r2 + imag[ind2] * real_twiddle;
+  temp = real_plus_imag_twiddle * r2 - z;
   imag[ind1] = i1 + temp;
   imag[ind2] = i1 - temp;
 }
@@ -255,7 +262,7 @@ void butterfly_trivial_minus_j(float *real, float *imag, int ind1, int ind2, boo
   }
 }
 
-void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
+void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
   bit_reverse(real, rev, size);
   bit_reverse(imag, rev, size);
@@ -284,15 +291,18 @@ void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, fl
       for (int i = 1, twiddle_index = num_units; i < half_span; ++i, twiddle_index += num_units)
       {
         float real_twiddle = roots_real[twiddle_index];
-        float imag_twiddle = invert? -roots_imag[twiddle_index] : roots_imag[twiddle_index];
-        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        // float imag_twiddle = invert? -roots_imag[twiddle_index] : roots_imag[twiddle_index];
+        float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
+        float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
+        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
       }
       butterfly_trivial_minus_j(real, imag, half_span + two_unit_span, half_span + two_unit_span + span, invert);
       for (int i = half_span + 1, twiddle_index = (half_span + 1) * num_units; i < span; ++i, twiddle_index += num_units)
       {
         float real_twiddle = roots_real[twiddle_index];
-        float imag_twiddle = invert? -roots_imag[twiddle_index] : roots_imag[twiddle_index];
-        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, imag_twiddle);
+        float real_plus_imag_twiddle = invert? roots_real_minus_imag[twiddle_index] : roots_real_plus_imag[twiddle_index];
+        float real_minus_imag_twiddle = invert? roots_real_plus_imag[twiddle_index] : roots_real_minus_imag[twiddle_index];
+        butterfly_forward_dit(real, imag, i + two_unit_span, i + two_unit_span + span, real_twiddle, real_plus_imag_twiddle, real_minus_imag_twiddle);
       }
     }
   }
@@ -338,12 +348,12 @@ void fourier_dif(float *real, float *imag, int size, short *rev, bool invert, fl
   bit_reverse(imag, rev, size);
 }
 
-void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_imag)
+void fft_row(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
   #pragma omp for
   for (int row = 0; row < size; ++row)
   {
-    fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_imag);
+    fourier_dit(real + row*size, imag + row*size, size, rev, invert, roots_real, roots_real_plus_imag, roots_real_minus_imag);
   }
 }
 
@@ -422,12 +432,16 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
   int half_size = size >> 1;
   float *roots_real = new float[half_size];
   float *roots_imag = new float[half_size];
+  float *roots_real_plus_imag = new float[half_size];
+  float *roots_real_minus_imag = new float[half_size];
   float two_pi_over_size = - 2 * PI / size;
   for (int i = 0; i < half_size; ++i)
   {
     float term = i * two_pi_over_size;
     roots_real[i] = cos(term);
-    roots_imag[i] = sin(term);
+    // roots_imag[i] = sin(term);
+    roots_real_plus_imag[i] = roots_real[i] + roots_imag[i];
+    roots_real_minus_imag[i] = roots_real[i] - roots_imag[i];
   }
   short *rev = new short[half_size];
   build_bit_rev_index(rev, size);
@@ -440,7 +454,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
     // Perform fft with respect to the x direction
-    fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
+    fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
@@ -455,7 +469,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Perform fft with respect to the y direction
-    fft_row(real_image, imag_image, size, rev, false, roots_real, roots_imag);
+    fft_row(real_image, imag_image, size, rev, false, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
@@ -471,7 +485,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
     }
 
     // Perform an inverse fft with respect to the x direction
-    fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
+    fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
@@ -487,7 +501,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
     // Perform an inverse fft with respect to the y direction
-    fft_row(real_image, imag_image, size, rev, true, roots_real, roots_imag);
+    fft_row(real_image, imag_image, size, rev, true, roots_real, roots_real_plus_imag, roots_real_minus_imag);
 
     #pragma omp single
     { 
