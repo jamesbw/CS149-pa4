@@ -203,7 +203,7 @@ void transpose_parallel(float *real, float *imag, int size)
 }
 
 
-void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float float real_minus_imag_twiddle)
+void butterfly_forward_dit(float *real, float *imag, int ind1, int ind2, float real_twiddle, float real_plus_imag_twiddle, float real_minus_imag_twiddle)
 {
   float r1 = real[ind1];
   float r2 = real[ind2];
