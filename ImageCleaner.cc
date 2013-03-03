@@ -78,6 +78,37 @@ void bit_reverse(float *values, short *rev, int size)
   }
 }
 
+void bit_reverse_real_and_imag(float *real, float *imag, short *rev, int size)
+{
+  int l = size / 2;
+  float temp;
+  for (int i = 0; i < l; ++i)
+  {
+    short index = rev[i];
+    if (i < index)
+    {
+      temp = real[i];
+      real[i] = real[index];
+      real[index] = temp;
+
+      temp = imag[i];
+      imag[i] = imag[index];
+      imag[index] = temp;
+    }
+    if (i + l < index + 1)
+    {
+      //rev covers only even indices. Odd pairs are the same but translated by size/2.
+      temp = real[i + l];
+      real[i + l] = real[index+1];
+      real[index+1] = temp;
+
+      temp = imag[i + l];
+      imag[i + l] = imag[index+1];
+      imag[index+1] = temp;
+    }
+  }
+}
+
 void swap_submatrices(float *submatrix1, float *submatrix2, int sub_size, int mat_size)
 {
   int size_bytes = sizeof(float) * sub_size;
@@ -607,8 +638,9 @@ void fourier_dit_no_reverse_invert(float *real, float *imag, int size, short *re
 
 void fourier_dit(float *real, float *imag, int size, short *rev, bool invert, float *roots_real, float *roots_real_plus_imag, float *roots_real_minus_imag)
 {
-  bit_reverse(real, rev, size);
-  bit_reverse(imag, rev, size);
+  // bit_reverse(real, rev, size);
+  // bit_reverse(imag, rev, size);
+  bit_reverse_real_and_imag(real, imag, rev, size);
   if (invert)
   {
     fourier_dit_no_reverse_invert(real, imag, size, rev, roots_real, roots_real_plus_imag, roots_real_minus_imag);
